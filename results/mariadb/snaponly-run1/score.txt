@@ -1,0 +1,51 @@
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: snap ===
+  races                    5000
+  racy                     5000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2234
+  assume_high_wrong_racy   5000
+  probe_wrong_racy         2
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 28, "chunk_counts": {"A": 151, "B": 203, "C": 117, "D": 355, "E": 290}, "estimate": {"C": 128, "D": 363, "A": 153, "B": 206, "E": 286}, "truth_at_high": {"A": 153, "B": 206, "C": 128, "D": 362, "E": 286}}
+
+=== mode: snap-gap10 ===
+  races                    5000
+  racy                     4998
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2260
+  assume_high_wrong_racy   4997
+  probe_wrong_racy         9
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 602, "chunk_counts": {"A": 1142, "B": 1042, "C": 1077, "D": 1346, "E": 1437}, "estimate": {"C": 1076, "D": 1340, "A": 1143, "B": 1040, "E": 1434}, "truth_at_high": {"A": 1144, "B": 1043, "C": 1077, "D": 1338, "E": 1435}}
+
+=== mode: snap-gap2 ===
+  races                    5000
+  racy                     4996
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2242
+  assume_high_wrong_racy   4996
+  probe_wrong_racy         5
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 179, "chunk_counts": {"A": 302, "B": 421, "C": 308, "D": 656, "E": 517}, "estimate": {"C": 308, "D": 655, "A": 302, "B": 428, "E": 521}, "truth_at_high": {"A": 303, "B": 428, "C": 308, "D": 655, "E": 521}}

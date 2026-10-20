@@ -1,0 +1,707 @@
+===== Tue Oct 20 12:39:35 EDT 2026 : 1 run(s), 90s each =====
+
+########## RUN 1 ##########
+Unable to find image 'mariadb:11.4' locally
+11.4: Pulling from library/mariadb
+2a4c34bf659b: Pulling fs layer
+22292930874c: Pulling fs layer
+d5aec63251bb: Pulling fs layer
+5e6ac9c5ee76: Pulling fs layer
+70f2e1a6e2a3: Pulling fs layer
+d0215179ab65: Pulling fs layer
+40282ef2dbc6: Pulling fs layer
+4b7673c8d27c: Pulling fs layer
+22292930874c: Download complete
+5e6ac9c5ee76: Download complete
+2a4c34bf659b: Download complete
+40282ef2dbc6: Download complete
+4b7673c8d27c: Download complete
+d5aec63251bb: Download complete
+70f2e1a6e2a3: Download complete
+bf883c4aa050: Download complete
+057a43b259ea: Download complete
+5e6ac9c5ee76: Pull complete
+d5aec63251bb: Pull complete
+70f2e1a6e2a3: Pull complete
+22292930874c: Pull complete
+40282ef2dbc6: Pull complete
+d0215179ab65: Download complete
+2a4c34bf659b: Pull complete
+4b7673c8d27c: Pull complete
+d0215179ab65: Pull complete
+Digest: sha256:250e1609e93c0e6aecf64bfbab2d84d5e89d2481540fe77447ff6c855c3b1873
+Status: Downloaded newer image for mariadb:11.4
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 2000 races to runs/mdb-run1/p_plain.jsonl
+wrote 2000 races to runs/mdb-run1/p_pos.jsonl
+wrote 2000 races to runs/mdb-run1/p_snap.jsonl
+committed 388304 writer transactions
+wrote 1500 control races to runs/mdb-run1/p_ctl.jsonl
+
+                       Setting The Variable Value BINLOG_ROW_METADATA = FULL, BINLOG_ROW_IMAGE = FULL.
+                       By Applying this, provide properly mapped column information on UPDATE,DELETE,INSERT.
+                        
+Traceback (most recent call last):
+  File "./mariadb/oracle.py", line 81, in <module>
+    main()
+    ~~~~^^
+  File "./mariadb/oracle.py", line 48, in main
+    cur[row["values"]["v"]] += 1
+        ~~~~~~~~~~~~~^^^^^
+KeyError: 'v'
+ORACLE STEP FAILED
+Traceback (most recent call last):
+  File "./score.py", line 275, in <module>
+    main()
+    ~~~~^^
+  File "./score.py", line 244, in main
+    oracle = json.load(open(a.oracle))
+                       ~~~~^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/mdb-run1/oracle.json'
+
+DONE Tue Oct 20 12:41:19 EDT 2026. Results are in runs/
+===== Tue Oct 20 12:42:29 EDT 2026 : 3 run(s), 90s each =====
+
+########## RUN 1 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 2000 races to runs/mdb-run1/p_plain.jsonl
+wrote 2000 races to runs/mdb-run1/p_pos.jsonl
+wrote 2000 races to runs/mdb-run1/p_snap.jsonl
+committed 388266 writer transactions
+wrote 1500 control races to runs/mdb-run1/p_ctl.jsonl
+
+                       Setting The Variable Value BINLOG_ROW_METADATA = FULL, BINLOG_ROW_IMAGE = FULL.
+                       By Applying this, provide properly mapped column information on UPDATE,DELETE,INSERT.
+                        
+Traceback (most recent call last):
+  File "./mariadb/oracle.py", line 81, in <module>
+    main()
+    ~~~~^^
+  File "./mariadb/oracle.py", line 48, in main
+    cur[row["values"]["v"]] += 1
+        ~~~~~~~~~~~~~^^^^^
+KeyError: 'v'
+ORACLE STEP FAILED
+Traceback (most recent call last):
+  File "./score.py", line 275, in <module>
+    main()
+    ~~~~^^
+  File "./score.py", line 244, in main
+    oracle = json.load(open(a.oracle))
+                       ~~~~^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'runs/mdb-run1/oracle.json'
+
+########## RUN 2 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 2000 races to runs/mdb-run2/p_plain.jsonl
+wrote 2000 races to runs/mdb-run2/p_pos.jsonl
+wrote 2000 races to runs/mdb-run2/p_snap.jsonl
+committed 381543 writer transactions
+wrote 1500 control races to runs/mdb-run2/p_ctl.jsonl
+
+                       Setting The Variable Value BINLOG_ROW_METADATA = FULL, BINLOG_ROW_IMAGE = FULL.
+                       By Applying this, provide properly mapped column information on UPDATE,DELETE,INSERT.
+                        
+oracle: 381536 transactions, 377016 changed caseb.t -> runs/mdb-run2/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1042
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 126, "B": 191, "C": 137, "D": 299, "E": 257}, "estimate": {"A": 126, "B": 191, "C": 137, "D": 299, "E": 257}, "truth_at_high": {"A": 129, "B": 181, "C": 136, "D": 295, "E": 259}}
+  example (assume_low wrong): {"race": 5, "chunk_counts": {"A": 122, "B": 179, "C": 128, "D": 307, "E": 273}, "estimate": {"A": 126, "C": 124, "D": 305, "E": 274, "B": 178}, "truth_at_high": {"A": 126, "B": 179, "C": 124, "D": 305, "E": 274}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    924
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         900
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 2, "chunk_counts": {"A": 130, "B": 183, "C": 127, "D": 286, "E": 271}, "estimate": {"A": 129, "C": 125, "D": 294, "E": 270, "B": 188}, "truth_at_high": {"A": 128, "B": 188, "C": 125, "D": 294, "E": 271}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    924
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+########## RUN 3 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 1500 races to runs/mdb-run3/p_posgap.jsonl
+wrote 1500 races to runs/mdb-run3/p_snapgap.jsonl
+wrote 2000 races to runs/mdb-run3/p_plain.jsonl
+wrote 2000 races to runs/mdb-run3/p_pos.jsonl
+wrote 2000 races to runs/mdb-run3/p_snap.jsonl
+committed 385993 writer transactions
+wrote 1500 control races to runs/mdb-run3/p_ctl.jsonl
+
+                       Setting The Variable Value BINLOG_ROW_METADATA = FULL, BINLOG_ROW_IMAGE = FULL.
+                       By Applying this, provide properly mapped column information on UPDATE,DELETE,INSERT.
+                        
+oracle: 385988 transactions, 381422 changed caseb.t -> runs/mdb-run3/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1022
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"A": 124, "B": 179, "C": 137, "D": 299, "E": 259}, "estimate": {"E": 270, "A": 125, "D": 293, "B": 176, "C": 139}, "truth_at_high": {"A": 126, "B": 176, "C": 138, "D": 292, "E": 270}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 124, "B": 179, "C": 137, "D": 299, "E": 259}, "estimate": {"A": 124, "B": 179, "C": 137, "D": 299, "E": 259}, "truth_at_high": {"A": 126, "B": 176, "C": 138, "D": 292, "E": 270}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    901
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         890
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 3, "chunk_counts": {"A": 119, "B": 181, "C": 128, "D": 299, "E": 272}, "estimate": {"E": 274, "A": 121, "D": 307, "B": 179, "C": 132}, "truth_at_high": {"A": 121, "B": 178, "C": 131, "D": 309, "E": 275}}
+
+=== mode: pos-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    716
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1491
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 124, "B": 179, "C": 137, "D": 299, "E": 259}, "estimate": {"E": 269, "A": 124, "D": 293, "B": 176, "C": 135}, "truth_at_high": {"A": 124, "B": 176, "C": 136, "D": 293, "E": 270}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    938
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         2
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 1047, "chunk_counts": {"A": 1341, "B": 1233, "C": 1300, "D": 1575, "E": 1630}, "estimate": {"E": 1636, "A": 1337, "D": 1574, "B": 1233, "C": 1298}, "truth_at_high": {"A": 1337, "B": 1233, "C": 1297, "D": 1574, "E": 1636}}
+
+=== mode: snap-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    707
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 444, "chunk_counts": {"A": 552, "B": 737, "C": 636, "D": 951, "E": 897}, "estimate": {"E": 897, "A": 555, "D": 960, "B": 731, "C": 639}, "truth_at_high": {"A": 557, "B": 729, "C": 642, "D": 962, "E": 898}}
+
+DONE Tue Oct 20 12:47:49 EDT 2026. Results are in runs/
+===== Tue Oct 20 12:47:58 EDT 2026 : 1 run(s), 90s each =====
+
+########## RUN 1 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 2000 races to runs/mdb-run1/p_plain.jsonl
+wrote 2000 races to runs/mdb-run1/p_pos.jsonl
+wrote 2000 races to runs/mdb-run1/p_snap.jsonl
+committed 388882 writer transactions
+wrote 1500 control races to runs/mdb-run1/p_ctl.jsonl
+oracle: 388876 transactions, 384279 changed caseb.t -> runs/mdb-run1/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1032
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 127, "B": 194, "C": 126, "D": 307, "E": 270}, "estimate": {"A": 127, "B": 194, "C": 126, "D": 307, "E": 270}, "truth_at_high": {"A": 124, "B": 185, "C": 129, "D": 299, "E": 260}}
+  example (assume_low wrong): {"race": 1, "chunk_counts": {"A": 123, "B": 184, "C": 129, "D": 299, "E": 261}, "estimate": {"E": 259, "C": 131, "B": 182, "D": 291, "A": 129}, "truth_at_high": {"A": 130, "B": 182, "C": 131, "D": 291, "E": 258}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    925
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         870
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 128, "B": 195, "C": 127, "D": 306, "E": 270}, "estimate": {"E": 261, "C": 129, "B": 186, "D": 298, "A": 124}, "truth_at_high": {"A": 123, "B": 185, "C": 129, "D": 299, "E": 261}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    929
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+DONE Tue Oct 20 12:49:49 EDT 2026. Results are in runs/
+===== Tue Oct 20 12:49:59 EDT 2026 : 3 run(s), 90s each =====
+
+########## RUN 1 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 2000 races to runs/mdb-run1/p_plain.jsonl
+wrote 2000 races to runs/mdb-run1/p_pos.jsonl
+wrote 2000 races to runs/mdb-run1/p_snap.jsonl
+committed 387435 writer transactions
+wrote 1500 control races to runs/mdb-run1/p_ctl.jsonl
+oracle: 387434 transactions, 382855 changed caseb.t -> runs/mdb-run1/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1022
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 126, "B": 193, "C": 126, "D": 300, "E": 254}, "estimate": {"A": 126, "B": 193, "C": 126, "D": 300, "E": 254}, "truth_at_high": {"A": 124, "B": 192, "C": 125, "D": 301, "E": 257}}
+  example (assume_low wrong): {"race": 1, "chunk_counts": {"A": 123, "B": 192, "C": 125, "D": 301, "E": 258}, "estimate": {"C": 126, "B": 193, "E": 254, "D": 299, "A": 125}, "truth_at_high": {"A": 126, "B": 193, "C": 126, "D": 299, "E": 254}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    923
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         898
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 4, "chunk_counts": {"A": 130, "B": 182, "C": 138, "D": 289, "E": 256}, "estimate": {"C": 124, "B": 187, "E": 264, "D": 287, "A": 131}, "truth_at_high": {"A": 130, "B": 187, "C": 124, "D": 287, "E": 265}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    932
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+########## RUN 2 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 2000 races to runs/mdb-run2/p_plain.jsonl
+wrote 2000 races to runs/mdb-run2/p_pos.jsonl
+wrote 2000 races to runs/mdb-run2/p_snap.jsonl
+committed 388602 writer transactions
+wrote 1500 control races to runs/mdb-run2/p_ctl.jsonl
+oracle: 388600 transactions, 384006 changed caseb.t -> runs/mdb-run2/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1024
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 134, "B": 186, "C": 136, "D": 296, "E": 262}, "estimate": {"A": 134, "B": 186, "C": 136, "D": 296, "E": 262}, "truth_at_high": {"A": 131, "B": 183, "C": 136, "D": 292, "E": 266}}
+  example (assume_low wrong): {"race": 2, "chunk_counts": {"A": 130, "B": 180, "C": 129, "D": 290, "E": 273}, "estimate": {"B": 192, "D": 305, "E": 266, "C": 130, "A": 125}, "truth_at_high": {"A": 125, "B": 192, "C": 130, "D": 304, "E": 266}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    934
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         864
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 134, "B": 186, "C": 136, "D": 296, "E": 262}, "estimate": {"B": 182, "D": 292, "E": 266, "C": 135, "A": 131}, "truth_at_high": {"A": 130, "B": 182, "C": 135, "D": 292, "E": 266}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    915
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+########## RUN 3 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 1500 races to runs/mdb-run3/p_posgap.jsonl
+wrote 1500 races to runs/mdb-run3/p_snapgap.jsonl
+wrote 2000 races to runs/mdb-run3/p_plain.jsonl
+wrote 2000 races to runs/mdb-run3/p_pos.jsonl
+wrote 2000 races to runs/mdb-run3/p_snap.jsonl
+committed 385787 writer transactions
+wrote 1500 control races to runs/mdb-run3/p_ctl.jsonl
+oracle: 385783 transactions, 381220 changed caseb.t -> runs/mdb-run3/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1035
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"A": 126, "B": 184, "C": 130, "D": 293, "E": 254}, "estimate": {"E": 260, "D": 287, "B": 182, "A": 125, "C": 133}, "truth_at_high": {"A": 125, "B": 182, "C": 133, "D": 288, "E": 260}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 126, "B": 184, "C": 130, "D": 293, "E": 254}, "estimate": {"A": 126, "B": 184, "C": 130, "D": 293, "E": 254}, "truth_at_high": {"A": 125, "B": 182, "C": 133, "D": 288, "E": 260}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    921
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         894
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 125, "B": 184, "C": 131, "D": 293, "E": 254}, "estimate": {"E": 259, "D": 288, "B": 182, "A": 125, "C": 133}, "truth_at_high": {"A": 125, "B": 182, "C": 133, "D": 288, "E": 260}}
+
+=== mode: pos-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    687
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1497
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 126, "B": 184, "C": 130, "D": 293, "E": 254}, "estimate": {"E": 259, "D": 290, "B": 185, "A": 126, "C": 133}, "truth_at_high": {"A": 125, "B": 184, "C": 134, "D": 290, "E": 260}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    940
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: snap-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    722
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 1455, "chunk_counts": {"A": 1896, "B": 1877, "C": 1819, "D": 2288, "E": 2332}, "estimate": {"E": 2332, "D": 2295, "B": 1878, "A": 1891, "C": 1821}, "truth_at_high": {"A": 1893, "B": 1879, "C": 1820, "D": 2293, "E": 2331}}
+
+DONE Tue Oct 20 12:55:35 EDT 2026. Results are in runs/
+===== Tue Oct 20 13:05:07 EDT 2026 : 3 run(s), 200s each =====
+
+########## RUN 1 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 5000 races to runs/mdbsnap-run1/p_snap.jsonl
+wrote 5000 races to runs/mdbsnap-run1/p_snapgap2.jsonl
+wrote 5000 races to runs/mdbsnap-run1/p_snapgap10.jsonl
+committed 843705 writer transactions
+wrote 1500 control races to runs/mdbsnap-run1/p_ctl.jsonl
+oracle: 843704 transactions, 833696 changed caseb.t -> runs/mdbsnap-run1/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: snap ===
+  races                    5000
+  racy                     5000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2234
+  assume_high_wrong_racy   5000
+  probe_wrong_racy         2
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 28, "chunk_counts": {"A": 151, "B": 203, "C": 117, "D": 355, "E": 290}, "estimate": {"C": 128, "D": 363, "A": 153, "B": 206, "E": 286}, "truth_at_high": {"A": 153, "B": 206, "C": 128, "D": 362, "E": 286}}
+
+=== mode: snap-gap10 ===
+  races                    5000
+  racy                     4998
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2260
+  assume_high_wrong_racy   4997
+  probe_wrong_racy         9
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 602, "chunk_counts": {"A": 1142, "B": 1042, "C": 1077, "D": 1346, "E": 1437}, "estimate": {"C": 1076, "D": 1340, "A": 1143, "B": 1040, "E": 1434}, "truth_at_high": {"A": 1144, "B": 1043, "C": 1077, "D": 1338, "E": 1435}}
+
+=== mode: snap-gap2 ===
+  races                    5000
+  racy                     4996
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2242
+  assume_high_wrong_racy   4996
+  probe_wrong_racy         5
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 179, "chunk_counts": {"A": 302, "B": 421, "C": 308, "D": 656, "E": 517}, "estimate": {"C": 308, "D": 655, "A": 302, "B": 428, "E": 521}, "truth_at_high": {"A": 303, "B": 428, "C": 308, "D": 655, "E": 521}}
+
+########## RUN 2 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 5000 races to runs/mdbsnap-run2/p_snap.jsonl
+wrote 5000 races to runs/mdbsnap-run2/p_snapgap2.jsonl
+wrote 5000 races to runs/mdbsnap-run2/p_snapgap10.jsonl
+committed 843911 writer transactions
+wrote 1500 control races to runs/mdbsnap-run2/p_ctl.jsonl
+oracle: 843906 transactions, 833896 changed caseb.t -> runs/mdbsnap-run2/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: snap ===
+  races                    5000
+  racy                     4999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2258
+  assume_high_wrong_racy   4999
+  probe_wrong_racy         2
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 3428, "chunk_counts": {"A": 4036, "B": 3990, "C": 3673, "D": 4267, "E": 4486}, "estimate": {"E": 4480, "C": 3670, "B": 3985, "A": 4031, "D": 4268}, "truth_at_high": {"A": 4032, "B": 3985, "C": 3670, "D": 4268, "E": 4480}}
+
+=== mode: snap-gap10 ===
+  races                    5000
+  racy                     5000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2329
+  assume_high_wrong_racy   5000
+  probe_wrong_racy         3
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 1442, "chunk_counts": {"A": 2518, "B": 2544, "C": 2290, "D": 2845, "E": 2957}, "estimate": {"E": 2960, "C": 2292, "B": 2540, "A": 2521, "D": 2852}, "truth_at_high": {"A": 2525, "B": 2539, "C": 2294, "D": 2854, "E": 2959}}
+
+=== mode: snap-gap2 ===
+  races                    5000
+  racy                     4999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2271
+  assume_high_wrong_racy   4999
+  probe_wrong_racy         7
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 735, "chunk_counts": {"A": 1009, "B": 1022, "C": 950, "D": 1289, "E": 1321}, "estimate": {"E": 1319, "C": 963, "B": 1024, "A": 1008, "D": 1288}, "truth_at_high": {"A": 1009, "B": 1024, "C": 962, "D": 1288, "E": 1319}}
+
+########## RUN 3 ##########
+waiting for MariaDB to start...
+11.4.13-MariaDB-ubu2404-log
+wrote 5000 races to runs/mdbsnap-run3/p_snap.jsonl
+wrote 5000 races to runs/mdbsnap-run3/p_snapgap2.jsonl
+wrote 5000 races to runs/mdbsnap-run3/p_snapgap10.jsonl
+committed 849136 writer transactions
+wrote 1500 control races to runs/mdbsnap-run3/p_ctl.jsonl
+oracle: 849132 transactions, 839064 changed caseb.t -> runs/mdbsnap-run3/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: snap ===
+  races                    5000
+  racy                     5000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2258
+  assume_high_wrong_racy   5000
+  probe_wrong_racy         1
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 3165, "chunk_counts": {"A": 3709, "B": 3800, "C": 3372, "D": 4099, "E": 4303}, "estimate": {"C": 3364, "B": 3804, "D": 4096, "E": 4295, "A": 3724}, "truth_at_high": {"A": 3724, "B": 3804, "C": 3365, "D": 4096, "E": 4295}}
+
+=== mode: snap-gap10 ===
+  races                    5000
+  racy                     5000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2280
+  assume_high_wrong_racy   5000
+  probe_wrong_racy         4
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 694, "chunk_counts": {"A": 1349, "B": 1218, "C": 1283, "D": 1576, "E": 1619}, "estimate": {"C": 1287, "B": 1227, "D": 1576, "E": 1620, "A": 1346}, "truth_at_high": {"A": 1345, "B": 1229, "C": 1289, "D": 1574, "E": 1625}}
+
+=== mode: snap-gap2 ===
+  races                    5000
+  racy                     4997
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    2395
+  assume_high_wrong_racy   4997
+  probe_wrong_racy         6
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 1435, "chunk_counts": {"A": 1882, "B": 1903, "C": 1843, "D": 2322, "E": 2337}, "estimate": {"C": 1838, "B": 1905, "D": 2323, "E": 2345, "A": 1891}, "truth_at_high": {"A": 1891, "B": 1906, "C": 1837, "D": 2323, "E": 2345}}
+
+DONE Tue Oct 20 13:16:52 EDT 2026. Results are in runs/

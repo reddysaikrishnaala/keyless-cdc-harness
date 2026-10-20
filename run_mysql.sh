@@ -2,6 +2,7 @@
 # Case B MySQL test, start to finish. Reproduces the settings behind the paper's Table I.
 #   bash run_mysql.sh          -> 3 runs (run 3 adds the 2 ms gap probes), MySQL 8.0 in Docker
 #   RUNS=1 bash run_mysql.sh   -> 1 run
+#   IMG=mysql:8.4 TAG=my84 bash run_mysql.sh -> MySQL 8.4 LTS, results in runs/my84-run<N>/
 # To use an existing server instead of Docker (it must run with the settings in mysql/setup.sql):
 #   EXTERNAL=1 MYSQL_HOST=127.0.0.1 MYSQL_PORT=3306 MYSQL_ROOT_PASSWORD=... bash run_mysql.sh
 # The paper's runs used MySQL 8.0.46. Results go to runs/my-run<N>/ (log: runs/my-log.txt).
@@ -51,7 +52,7 @@ setup() {
 C=(--host "$HOST" --port "$PORT")
 PIDS=()
 for r in $(seq 1 "$RUNS"); do
-  D=runs/my-run$r; rm -rf "$D"; mkdir -p "$D"
+  D=runs/${TAG:-my}-run$r; rm -rf "$D"; mkdir -p "$D"
   echo; echo "########## RUN $r ##########"
   start_server; setup
   $PY mysql/workload.py "${C[@]}" --seconds "$SECS" --threads 8 \

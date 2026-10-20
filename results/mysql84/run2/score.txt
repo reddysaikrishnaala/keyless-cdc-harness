@@ -1,0 +1,50 @@
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: m1 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    407
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         308
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"E": 117, "B": 146, "D": 89, "C": 45, "A": 67}, "estimate": {"D": 86, "C": 43, "B": 151, "A": 71, "E": 108}, "truth_at_high": {"A": 70, "B": 151, "C": 43, "D": 87, "E": 108}}
+
+=== mode: m2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    427
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1849
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"E": 117, "B": 146, "D": 89, "C": 45, "A": 67}, "estimate": {"D": 85, "C": 44, "B": 147, "A": 67, "E": 115}, "truth_at_high": {"A": 68, "B": 151, "C": 43, "D": 85, "E": 108}}
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    464
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"E": 117, "B": 146, "D": 90, "C": 45, "A": 66}, "estimate": {"D": 88, "C": 43, "B": 151, "A": 69, "E": 108}, "truth_at_high": {"A": 70, "B": 151, "C": 43, "D": 87, "E": 108}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"E": 117, "B": 146, "D": 90, "C": 45, "A": 66}, "estimate": {"E": 117, "B": 146, "D": 90, "C": 45, "A": 66}, "truth_at_high": {"A": 70, "B": 151, "C": 43, "D": 87, "E": 108}}

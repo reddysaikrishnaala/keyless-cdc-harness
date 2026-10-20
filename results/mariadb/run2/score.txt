@@ -1,0 +1,49 @@
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1024
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"A": 134, "B": 186, "C": 136, "D": 296, "E": 262}, "estimate": {"A": 134, "B": 186, "C": 136, "D": 296, "E": 262}, "truth_at_high": {"A": 131, "B": 183, "C": 136, "D": 292, "E": 266}}
+  example (assume_low wrong): {"race": 2, "chunk_counts": {"A": 130, "B": 180, "C": 129, "D": 290, "E": 273}, "estimate": {"B": 192, "D": 305, "E": 266, "C": 130, "A": 125}, "truth_at_high": {"A": 125, "B": 192, "C": 130, "D": 304, "E": 266}}
+
+=== mode: pos ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    934
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         864
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 134, "B": 186, "C": 136, "D": 296, "E": 262}, "estimate": {"B": 182, "D": 292, "E": 266, "C": 135, "A": 131}, "truth_at_high": {"A": 130, "B": 182, "C": 135, "D": 292, "E": 266}}
+
+=== mode: snap ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    915
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count

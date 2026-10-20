@@ -78,7 +78,7 @@ class Positions:
                 sys.exit("binlog commit order differs from GTID order; scoring assumes they match")
 
     def k(self, pos):
-        if self.engine in ("sqlserver", "postgres"):
+        if self.engine in ("sqlserver", "postgres", "mariadb"):
             return bisect.bisect_right(self.ids, pos)
         gs = parse_gtid_set(pos).get(self.uuid, [])
         if not gs:
