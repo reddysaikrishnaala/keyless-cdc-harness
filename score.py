@@ -25,7 +25,9 @@ A strategy is right for a race only if every value matches the oracle at
 `low` and `high`; only racy races can expose the ambiguity.
 
 out_of_order_read counts reads whose snapshot saw exactly one commit out of
-log commit order (seen on SQL Server under concurrent commits). No single log
+log commit order (seen on SQL Server under concurrent commits). On PostgreSQL,
+reads with several commits out of WAL order are counted as multi_reorder_read;
+there the documented snapshot ("set" probe) and the control check them exactly. No single log
 position describes such a read, so any position-based probe can be off by one
 there. inconsistent_read counts reads nothing explains: those invalidate a run.
 """
@@ -76,7 +78,7 @@ class Positions:
                 sys.exit("binlog commit order differs from GTID order; scoring assumes they match")
 
     def k(self, pos):
-        if self.engine == "sqlserver":
+        if self.engine in ("sqlserver", "postgres"):
             return bisect.bisect_right(self.ids, pos)
         gs = parse_gtid_set(pos).get(self.uuid, [])
         if not gs:
@@ -126,10 +128,40 @@ def one_commit_reordered(cum, txns, kl, kh, c, reach=60):
     return False
 
 
+def parse_snapshot(s):
+    """PostgreSQL pg_snapshot text 'xmin:xmax:xip,xip' -> (xmin, xmax, set of in-progress xids)."""
+    xmin, xmax, xip = s.split(":")
+    return int(xmin), int(xmax), {int(x) for x in xip.split(",") if x}
+
+
+class SnapshotSets:
+    """For a PostgreSQL snapshot, the oracle transactions (commit index < kh) it does NOT see."""
+
+    def __init__(self, txns):
+        self.by_xid = sorted((t["xid"], i) for i, t in enumerate(txns))
+        self.xids = [x for x, _ in self.by_xid]
+        self.maxxid, m = [0], 0
+        for t in txns:
+            m = max(m, t["xid"])
+            self.maxxid.append(m)
+
+    def invisible(self, snap, kh):
+        xmin, xmax, xip = parse_snapshot(snap)
+        out = []
+        j = bisect.bisect_left(self.xids, xmin)
+        while j < len(self.xids) and self.xids[j] <= self.maxxid[kh]:
+            x, i = self.by_xid[j]
+            if i < kh and (x >= xmax or x in xip):
+                out.append(i)
+            j += 1
+        return out
+
+
 def score(oracle, races):
     P = Positions(oracle)
     txns = oracle["txns"]
     cum = build_prefix_counts(txns)
+    S = SnapshotSets(txns) if oracle["engine"] == "postgres" else None
     stats = defaultdict(lambda: defaultdict(int))
     examples = defaultdict(list)
 
@@ -151,6 +183,11 @@ def score(oracle, races):
         if not any(same(cum[k], c) for k in range(kl, kh + 1)):
             if one_commit_reordered(cum, txns, kl, kh, c):
                 st["out_of_order_read"] += 1
+            elif S is not None:
+                # PostgreSQL: visibility follows the running-transaction set, not WAL
+                # order, so several commits can be out of order. Counted, not fatal;
+                # the "set" probe and the control check these reads exactly.
+                st["multi_reorder_read"] += 1
             else:
                 st["inconsistent_read"] += 1
 
@@ -165,6 +202,12 @@ def score(oracle, races):
                 kp = kl
             kp = min(max(kp, kl), kh)
             estimates["probe"] = plus(c, diff(cum[kh], cum[kp]))
+        if r.get("snap") is not None and S is not None:
+            # Documented snapshot set: add exactly the changes committed by high that it did not see.
+            est = dict(c)
+            for i in S.invisible(r["snap"], kh):
+                est = plus(est, txns[i]["d"])
+            estimates["set"] = est
 
         for name, est in estimates.items():
             ok = same(est, truth_high)
@@ -178,7 +221,7 @@ def score(oracle, races):
     return stats, examples
 
 
-def verdict(st, has_probe, min_racy):
+def verdict(st, has_probe, min_racy, key="probe"):
     if st["bad_watermarks"] or st["inconsistent_read"]:
         return "INVALID RUN - fix watermarks or isolation before trusting any result"
     if st["racy"] < min_racy:
@@ -187,7 +230,7 @@ def verdict(st, has_probe, min_racy):
         if st["assume_low_wrong_racy"] and st["assume_high_wrong_racy"]:
             return "AMBIGUITY REPRODUCED - neither naive assumption is safe"
         return "AMBIGUITY NOT SHOWN - one naive assumption was always right; raise write load"
-    if st["probe_wrong_racy"] == 0 and st["probe_unusable"] == 0:
+    if st[f"{key}_wrong_racy"] == 0 and st["probe_unusable"] == 0:
         return "PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count"
     return "PROBE FAILED - it does not identify the position the chunk saw"
 
@@ -205,16 +248,26 @@ def main():
         sys.exit("no probe races found")
     for mode, st in stats.items():
         has_probe = any(r.get("probe") is not None for r in races if r["mode"] == mode)
+        has_set = any(r.get("snap") is not None for r in races if r["mode"] == mode)
         print(f"\n=== mode: {mode} ===")
         keys = ["races", "racy", "bad_watermarks", "inconsistent_read", "out_of_order_read",
                 "assume_low_wrong_racy", "assume_high_wrong_racy"]
+        if oracle["engine"] == "postgres":
+            keys.insert(5, "multi_reorder_read")
         if has_probe:
             keys += ["probe_wrong_racy", "probe_unusable"]
+        if has_set:
+            keys += ["set_wrong_racy"]
         for k in keys:
             print(f"  {k:24s} {st[k]}")
-        print(f"  VERDICT: {verdict(st, has_probe, a.min_racy)}")
+        if has_probe:
+            print(f"  VERDICT (position): {verdict(st, True, a.min_racy)}")
+        if has_set:
+            print(f"  VERDICT (snapshot set): {verdict(st, True, a.min_racy, key='set')}")
+        if not has_probe and not has_set:
+            print(f"  VERDICT: {verdict(st, False, a.min_racy)}")
         for (m, name), ex in examples.items():
-            if m == mode and (name == "probe" or not has_probe):
+            if m == mode and (name in ("probe", "set") or not (has_probe or has_set)):
                 print(f"  example ({name} wrong): {json.dumps(ex[0])}")
 
 

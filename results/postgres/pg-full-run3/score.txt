@@ -1,0 +1,94 @@
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  multi_reorder_read       0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  set_wrong_racy           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        472
+  multi_reorder_read       472
+  assume_low_wrong_racy    1335
+  assume_high_wrong_racy   1999
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"B": 171, "C": 132, "D": 318, "E": 282, "A": 144}, "estimate": {"A": 140, "E": 283, "D": 317, "B": 171, "C": 133}, "truth_at_high": {"A": 140, "B": 170, "C": 134, "D": 317, "E": 283}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"B": 171, "C": 132, "D": 318, "E": 282, "A": 144}, "estimate": {"B": 171, "C": 132, "D": 318, "E": 282, "A": 144}, "truth_at_high": {"A": 140, "B": 170, "C": 134, "D": 317, "E": 283}}
+
+=== mode: pos1 ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        404
+  multi_reorder_read       374
+  assume_low_wrong_racy    1357
+  assume_high_wrong_racy   1999
+  probe_wrong_racy         1479
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 175, "C": 132, "D": 317, "E": 271, "A": 127}, "estimate": {"A": 123, "E": 273, "D": 320, "B": 177, "C": 129}, "truth_at_high": {"A": 124, "B": 177, "C": 129, "D": 320, "E": 273}}
+
+=== mode: pos1-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        258
+  multi_reorder_read       284
+  assume_low_wrong_racy    1002
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1105
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 3, "chunk_counts": {"B": 185, "C": 125, "D": 294, "E": 250, "A": 138}, "estimate": {"A": 136, "E": 263, "D": 298, "B": 184, "C": 125}, "truth_at_high": {"A": 136, "B": 184, "C": 127, "D": 297, "E": 264}}
+
+=== mode: pos2 ===
+  races                    2000
+  racy                     1998
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        377
+  multi_reorder_read       396
+  assume_low_wrong_racy    1362
+  assume_high_wrong_racy   1998
+  probe_wrong_racy         1885
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 170, "C": 132, "D": 318, "E": 278, "A": 143}, "estimate": {"A": 145, "E": 281, "D": 314, "B": 173, "C": 130}, "truth_at_high": {"A": 145, "B": 171, "C": 131, "D": 316, "E": 282}}
+
+=== mode: set ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        391
+  multi_reorder_read       379
+  assume_low_wrong_racy    1367
+  assume_high_wrong_racy   1999
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: set-gap2 ===
+  races                    1500
+  racy                     1499
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        276
+  multi_reorder_read       281
+  assume_low_wrong_racy    1026
+  assume_high_wrong_racy   1499
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count

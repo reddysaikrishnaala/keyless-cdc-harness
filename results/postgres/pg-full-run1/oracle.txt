@@ -1,0 +1,2 @@
+decoded 264063 transactions
+oracle self-check passed: replay matches live table {'E': 3535, 'D': 3473, 'A': 2995, 'C': 2748, 'B': 3252}

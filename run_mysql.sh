@@ -49,21 +49,22 @@ setup() {
 }
 
 C=(--host "$HOST" --port "$PORT")
+PIDS=()
 for r in $(seq 1 "$RUNS"); do
   D=runs/my-run$r; rm -rf "$D"; mkdir -p "$D"
   echo; echo "########## RUN $r ##########"
   start_server; setup
   $PY mysql/workload.py "${C[@]}" --seconds "$SECS" --threads 8 \
-    --control-races "$CTL" --control-out "$D/p_ctl.jsonl" > "$D/workload.log" 2>&1 &
+    --control-races "$CTL" --control-out "$D/p_ctl.jsonl" > "$D/workload.log" 2>&1 & PIDS+=($!)
   sleep 3
-  $PY mysql/probe.py "${C[@]}" --mode plain --races "$PR" --out "$D/p_plain.jsonl" &
-  $PY mysql/probe.py "${C[@]}" --mode m1 --races "$PR" --out "$D/p_m1.jsonl" &
-  $PY mysql/probe.py "${C[@]}" --mode m2 --races "$PR" --out "$D/p_m2.jsonl" &
+  $PY mysql/probe.py "${C[@]}" --mode plain --races "$PR" --out "$D/p_plain.jsonl" & PIDS+=($!)
+  $PY mysql/probe.py "${C[@]}" --mode m1 --races "$PR" --out "$D/p_m1.jsonl" & PIDS+=($!)
+  $PY mysql/probe.py "${C[@]}" --mode m2 --races "$PR" --out "$D/p_m2.jsonl" & PIDS+=($!)
   if [ "$r" = "3" ]; then
-    $PY mysql/probe.py "${C[@]}" --mode m1 --label m1-gap2 --gap-ms 2 --races "$PRGAP" --out "$D/p_m1gap.jsonl" &
-    $PY mysql/probe.py "${C[@]}" --mode m2 --label m2-gap2 --gap-ms 2 --races "$PRGAP" --out "$D/p_m2gap.jsonl" &
+    $PY mysql/probe.py "${C[@]}" --mode m1 --label m1-gap2 --gap-ms 2 --races "$PRGAP" --out "$D/p_m1gap.jsonl" & PIDS+=($!)
+    $PY mysql/probe.py "${C[@]}" --mode m2 --label m2-gap2 --gap-ms 2 --races "$PRGAP" --out "$D/p_m2gap.jsonl" & PIDS+=($!)
   fi
-  wait
+  wait "${PIDS[@]}"; PIDS=()
   cat "$D/workload.log"
   $PY mysql/oracle.py "${C[@]}" --out "$D/oracle.json" || echo "ORACLE STEP FAILED"
   cat "$D"/p_*.jsonl > "$D/all.jsonl"

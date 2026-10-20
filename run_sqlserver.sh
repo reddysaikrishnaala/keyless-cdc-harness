@@ -59,24 +59,25 @@ if [ "$RUNS" = "linkage" ]; then
   sleep 10
   python sqlserver/linkage.py --password "$PW" | tee runs/ms-linkage-observer.txt
   docker rm -f caseb-mssql >/dev/null 2>&1
-  echo; echo "DONE $(date). Result: ~/caseb/runs/ms-linkage-observer.txt - tell Claude it finished."
+  echo; echo "DONE $(date). Result: ~/caseb/runs/ms-linkage-observer.txt."
   exit 0
 fi
 
+PIDS=()
 for r in $(seq 1 "$RUNS"); do
   D=runs/ms-run$r; rm -rf "$D"; mkdir -p "$D"
   echo; echo "########## RUN $r ##########"
   start_server; setup
   python sqlserver/workload.py --password "$PW" --seconds $SECS --threads 8 \
-    --control-races $CTL --control-out $D/p_ctl.jsonl > $D/workload.log 2>&1 &
+    --control-races $CTL --control-out $D/p_ctl.jsonl > $D/workload.log 2>&1 & PIDS+=($!)
   sleep 3
-  python sqlserver/probe.py --password "$PW" --mode plain --races $PR --out $D/p_plain.jsonl &
-  python sqlserver/probe.py --password "$PW" --mode s1 --races $PR --out $D/p_s1.jsonl &
-  python sqlserver/probe.py --password "$PW" --mode s2 --races $PR --out $D/p_s2.jsonl &
+  python sqlserver/probe.py --password "$PW" --mode plain --races $PR --out $D/p_plain.jsonl & PIDS+=($!)
+  python sqlserver/probe.py --password "$PW" --mode s1 --races $PR --out $D/p_s1.jsonl & PIDS+=($!)
+  python sqlserver/probe.py --password "$PW" --mode s2 --races $PR --out $D/p_s2.jsonl & PIDS+=($!)
   if [ "$r" = "3" ]; then
-    python sqlserver/probe.py --password "$PW" --mode s1 --label s1-gap2 --gap-ms 2 --races $PR --out $D/p_s1gap.jsonl &
+    python sqlserver/probe.py --password "$PW" --mode s1 --label s1-gap2 --gap-ms 2 --races $PR --out $D/p_s1gap.jsonl & PIDS+=($!)
   fi
-  wait
+  wait "${PIDS[@]}"; PIDS=()
   cat $D/workload.log
   python sqlserver/oracle.py --password "$PW" --out $D/oracle.json || echo "ORACLE STEP FAILED"
   cat $D/p_*.jsonl > $D/all.jsonl
@@ -86,4 +87,4 @@ done
 echo; echo "########## IDENTIFIER CHECK ##########"
 python sqlserver/linkage.py --password "$PW" | tee runs/ms-linkage.txt
 docker rm -f caseb-mssql >/dev/null 2>&1
-echo; echo "DONE $(date). Results are in ~/caseb/runs - tell Claude it finished."
+echo; echo "DONE $(date). Results are in ~/caseb/runs."
