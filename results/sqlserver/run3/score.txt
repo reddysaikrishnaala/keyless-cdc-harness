@@ -1,0 +1,63 @@
+
+=== mode: ctl ===
+  races                    1200
+  racy                     1200
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1200
+  assume_high_wrong_racy   1198
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT: PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    1500
+  racy                     551
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        7
+  assume_low_wrong_racy    515
+  assume_high_wrong_racy   278
+  VERDICT: NOT ENOUGH RACES (551 racy < 1000) - run longer, add writers or --gap-ms
+  example (assume_low wrong): {"race": 110, "chunk_counts": {"A": 21, "B": 29, "C": 23, "D": 19, "E": 20}, "estimate": {"C": 16, "A": 25, "E": 21, "B": 28, "D": 24}, "truth_at_high": {"A": 23, "B": 32, "C": 19, "D": 26, "E": 19}}
+  example (assume_high wrong): {"race": 110, "chunk_counts": {"A": 21, "B": 29, "C": 23, "D": 19, "E": 20}, "estimate": {"A": 21, "B": 29, "C": 23, "D": 19, "E": 20}, "truth_at_high": {"A": 23, "B": 32, "C": 19, "D": 26, "E": 19}}
+
+=== mode: s1 ===
+  races                    1500
+  racy                     677
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        11
+  assume_low_wrong_racy    639
+  assume_high_wrong_racy   307
+  probe_wrong_racy         450
+  probe_unusable           0
+  VERDICT: NOT ENOUGH RACES (677 racy < 1000) - run longer, add writers or --gap-ms
+  example (probe wrong): {"race": 110, "chunk_counts": {"A": 22, "B": 37, "C": 9, "D": 33, "E": 28}, "estimate": {"C": 6, "A": 22, "E": 30, "B": 35, "D": 34}, "truth_at_high": {"A": 22, "B": 34, "C": 6, "D": 34, "E": 30}}
+
+=== mode: s1-gap2 ===
+  races                    1500
+  racy                     697
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        6
+  assume_low_wrong_racy    660
+  assume_high_wrong_racy   295
+  probe_wrong_racy         473
+  probe_unusable           0
+  VERDICT: NOT ENOUGH RACES (697 racy < 1000) - run longer, add writers or --gap-ms
+  example (probe wrong): {"race": 98, "chunk_counts": {"A": 21, "B": 29, "C": 20, "D": 23, "E": 18}, "estimate": {"C": 14, "A": 22, "E": 20, "B": 30, "D": 28}, "truth_at_high": {"A": 23, "B": 30, "C": 15, "D": 28, "E": 19}}
+
+=== mode: s2 ===
+  races                    1500
+  racy                     690
+  bad_watermarks           0
+  inconsistent_read        1
+  out_of_order_read        4
+  assume_low_wrong_racy    541
+  assume_high_wrong_racy   539
+  probe_wrong_racy         216
+  probe_unusable           0
+  VERDICT: INVALID RUN - fix watermarks or isolation before trusting any result
+  example (probe wrong): {"race": 100, "chunk_counts": {"A": 23, "B": 30, "C": 14, "D": 28, "E": 19}, "estimate": {"C": 14, "A": 25, "E": 18, "B": 31, "D": 30}, "truth_at_high": {"A": 24, "B": 32, "C": 14, "D": 30, "E": 18}}

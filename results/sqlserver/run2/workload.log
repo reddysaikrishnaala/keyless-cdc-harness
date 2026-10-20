@@ -1,0 +1,3 @@
+WARNING: control races did not finish within --seconds; races after the writers stop are not racy
+committed 157919 writer transactions
+wrote 1200 control races to runs/ms-run2/p_ctl.jsonl

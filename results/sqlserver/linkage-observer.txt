@@ -1,0 +1,228 @@
+
+--- Server and database settings ---
+{'version': '16.0.4305.5', 'cu': 'CU27', 'snapshot_isolation_state_desc': 'ON', 'is_read_committed_snapshot_on': False, 'is_cdc_enabled': True, 'view_server_state': 1, 'view_server_perf_state': 1}
+
+================ SAMPLE 1 ================
+=== READER-VISIBLE (window B) ===
+
+--- B own snapshot: sys.dm_tran_current_transaction ---
+{'transaction_id': 14671, 'transaction_sequence_num': 50, 'first_snapshot_sequence_num': 49, 'last_transaction_sequence_num': 50}
+
+--- B own snapshot: sys.dm_tran_transactions_snapshot (all rows) ---
+(no rows)
+
+--- B own snapshot: sys.dm_tran_current_snapshot ---
+(no rows)
+
+--- B own snapshot: sys.dm_tran_current_snapshot after B's second read ---
+(no rows)
+
+--- B server-wide view: sys.dm_tran_active_snapshot_database_transactions ---
+{'transaction_id': 14606, 'transaction_sequence_num': 49, 'session_id': 61, 'is_snapshot': False, 'max_version_chain_traversed': 0, 'average_version_chain_traversed': 0.0, 'elapsed_time_seconds': 0}
+{'transaction_id': 14671, 'transaction_sequence_num': 50, 'session_id': 62, 'is_snapshot': True, 'first_snapshot_sequence_num': 49, 'max_version_chain_traversed': 1, 'average_version_chain_traversed': 1.0, 'elapsed_time_seconds': 0}
+
+=== OBSERVER (separate session, while B's snapshot is open; B is session 62) ===
+
+--- O: sys.dm_exec_sessions (isolation 5 = SNAPSHOT) ---
+{'session_id': 62, 'transaction_isolation_level': 5, 'open_transaction_count': 1}
+{'session_id': 63, 'transaction_isolation_level': 2, 'open_transaction_count': 0}
+
+--- O: sys.dm_tran_transactions_snapshot ---
+(no rows)
+
+--- O: sys.dm_tran_active_snapshot_database_transactions ---
+{'transaction_id': 14606, 'transaction_sequence_num': 49, 'session_id': 61, 'is_snapshot': False, 'max_version_chain_traversed': 0, 'average_version_chain_traversed': 0.0, 'elapsed_time_seconds': 0}
+{'transaction_id': 14671, 'transaction_sequence_num': 50, 'session_id': 62, 'is_snapshot': True, 'first_snapshot_sequence_num': 49, 'max_version_chain_traversed': 1, 'average_version_chain_traversed': 1.0, 'elapsed_time_seconds': 0}
+
+--- O: sys.dm_tran_transactions_snapshot after a second read in B ---
+(no rows)
+
+=== WRITER, seen live (window A) ===
+
+--- A: sys.dm_tran_current_transaction ---
+{'transaction_id': 14606, 'transaction_sequence_num': 49, 'transaction_is_snapshot': False}
+
+--- A: sys.dm_tran_database_transactions ---
+{'database_transaction_begin_lsn': Decimal('43000000271200001'), 'database_transaction_last_lsn': Decimal('43000000271200002')}
+
+--- A: fn_dblog LOP_BEGIN_XACT ---
+{'Transaction ID': '0000:00000463', 'Current LSN': '0000002B:00000A98:0001', 'Operation': 'LOP_BEGIN_XACT'}
+
+=== LOG SIDE after commit (window C) ===
+
+--- C: cdc.lsn_time_mapping (newest 3) ---
+{'start_lsn': '0000002b00000a980005', 'tran_id': '000000000463', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 59, 8, 880000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 59, 8, 913000)}
+{'start_lsn': '0000002b000007200104', 'tran_id': '000000000453', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 58, 58, 617000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 58, 58, 637000)}
+{'start_lsn': '0000002b000004180001', 'tran_id': '0000000003e8', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 58, 47, 877000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 58, 53, 250000)}
+
+--- C: cdc.dbo_t_CT (newest 3) ---
+{'__$start_lsn': '0000002b00000a980005', '__$seqval': '0000002b00000a980002', '__$operation': 1, 'v': 'B'}
+{'__$start_lsn': '0000002b000007200104', '__$seqval': '0000002b000007200103', '__$operation': 2, 'v': 'C'}
+{'__$start_lsn': '0000002b000007200104', '__$seqval': '0000002b000007200102', '__$operation': 2, 'v': 'A'}
+
+--- C: fn_dblog rows for Transaction ID 0000:00000463 ---
+{'Current LSN': '0000002B:00000A98:0001', 'Operation': 'LOP_BEGIN_XACT', 'Context': 'LCX_NULL', 'Transaction ID': '0000:00000463', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 76, 'Log Record Length': 120, 'Previous LSN': '00000000:00000000:0000', 'Flag Bits': '0002', 'Log Reserve': 9492, 'Server UID': 0, 'SPID': 61, 'Beginlog Status': '01000000', 'Xact Type': 1, 'Begin Time': '2026/10/20 02:59:08:880', 'Transaction Name': 'user_transaction', 'Transaction SID': '01', 'Oldest Active Transaction ID': '0000:00000463', 'Xact ID': 14606, 'Xact Node ID': 0, 'Xact Node Local ID': 0, 'Description': '2026/10/20 02:59:08:880;user_transaction;0x01', 'Log Record': '00004c0000000000000000000000020063040000000080003d00000001000000010000000000000058343100e9b400000e3900000000000000000000000000006304000000000000000000000200200001002c2075007300650072005f007400720061006e00730061006300740069006f006e000120756e'}
+{'Current LSN': '0000002B:00000A98:0002', 'Operation': 'LOP_DELETE_ROWS', 'Context': 'LCX_HEAP', 'Transaction ID': '0000:00000463', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 62, 'Log Record Length': 116, 'Previous LSN': '0000002B:00000A98:0001', 'Flag Bits': '0406', 'Log Reserve': 330, 'AllocUnitId': 72057594052476928, 'AllocUnitName': 'dbo.t', 'Page ID': '0001:000002c0', 'Slot ID': 0, 'Previous Page LSN': '0000002B:00000720:0103', 'PartitionId': 72057594045726720, 'RowFlags': 70, 'Num Elements': 2, 'Offset in Row': 1, 'Modify Size': 1024, 'Number of Locks': 3, 'Lock Information': 'HoBt 72057594045726720:ACQUIRE_LOCK_IX OBJECT: 5:901578250:0 ;ACQUIRE_LOCK_IX PAGE: 5:1:704 ;ACQUIRE_LOCK_X RID: 5:1:704:0', 'Description': 'REPLICATE', 'RowLog Contents 0': '7000040001000001000c00420000000000000000530400000000', 'RowLog Contents 1': '0101000c00000afebc3500000102000402030004', 'RowLog Contents 2': '', 'RowLog Contents 3': '', 'RowLog Contents 4': '', 'RowLog Contents 5': '', 'Log Record': '00003e002b000000980a0000010006046304000000000301c002000001000000de0000002b0000002007000003010001000077000000000101000004460002001a0014007000040001000001000c0042000000000000000053040000000075700101000c00000afebc3500000102000402030004'}
+{'Current LSN': '0000002B:00000A98:0005', 'Operation': 'LOP_COMMIT_XACT', 'Context': 'LCX_NULL', 'Transaction ID': '0000:00000463', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 80, 'Log Record Length': 96, 'Previous LSN': '0000002B:00000A98:0001', 'Flag Bits': '0006', 'Log Reserve': 102, 'Xact ID': 14606, 'Xact Node ID': 0, 'Xact Node Local ID': 0, 'End AGE': 0, 'End Time': '2026/10/20 02:59:08:913', 'Transaction Begin': '0000002B:00000A98:0001', 'Replicated Records': 1, 'Oldest Active LSN': '0000002B:00000A98:0001', 'Server Name': 'none', 'Database Name': 'none', 'Virtual Clock': 0, 'Description': '2026/10/20 02:59:08:913;REPLICATE', 'Log Record': '000050002b000000980a000001000600630400000000810062343100e9b400002b000000980a00000100000000000000010000000000000000000000000000000e39000000000000000000000000000001000a002b000000980a000001002473'}
+
+=== SNAPSHOT VIEW DIAGNOSIS ===
+rows seen by B itself=0; by observer=0; by observer after B's second read=0
+rows for B's snapshot (XSN 50)=0; lists writer A's XSN 49=False
+dm_tran_current_snapshot inside B: rows=0 (after 2nd read 0); XSNs=[]; lists writer A's XSN 49=False
+
+=== MATCHES ===
+A.transaction_id: in B's own snapshot metadata=False; in server-wide view=True; on log side=['fn_dblog(undocumented).Xact ID']
+A.transaction_sequence_num: in B's own snapshot metadata=True; in server-wide view=True; on log side=no
+A.database_transaction_begin_lsn: in B's own snapshot metadata=False; in server-wide view=False; on log side=['fn_dblog(undocumented).Current LSN', 'fn_dblog(undocumented).Oldest Active LSN', 'fn_dblog(undocumented).Previous LSN', 'fn_dblog(undocumented).Transaction Begin']
+A.database_transaction_last_lsn: in B's own snapshot metadata=False; in server-wide view=False; on log side=['cdc.change_table.__$seqval', 'fn_dblog(undocumented).Current LSN']
+
+================ SAMPLE 2 ================
+=== READER-VISIBLE (window B) ===
+
+--- B own snapshot: sys.dm_tran_current_transaction ---
+{'transaction_id': 15280, 'transaction_sequence_num': 61, 'first_snapshot_sequence_num': 60, 'last_transaction_sequence_num': 61}
+
+--- B own snapshot: sys.dm_tran_transactions_snapshot (all rows) ---
+(no rows)
+
+--- B own snapshot: sys.dm_tran_current_snapshot ---
+(no rows)
+
+--- B own snapshot: sys.dm_tran_current_snapshot after B's second read ---
+(no rows)
+
+--- B server-wide view: sys.dm_tran_active_snapshot_database_transactions ---
+{'transaction_id': 15246, 'transaction_sequence_num': 60, 'session_id': 61, 'is_snapshot': False, 'max_version_chain_traversed': 0, 'average_version_chain_traversed': 0.0, 'elapsed_time_seconds': 0}
+{'transaction_id': 15280, 'transaction_sequence_num': 61, 'session_id': 62, 'is_snapshot': True, 'first_snapshot_sequence_num': 60, 'max_version_chain_traversed': 1, 'average_version_chain_traversed': 1.0, 'elapsed_time_seconds': 0}
+
+=== OBSERVER (separate session, while B's snapshot is open; B is session 62) ===
+
+--- O: sys.dm_exec_sessions (isolation 5 = SNAPSHOT) ---
+{'session_id': 62, 'transaction_isolation_level': 5, 'open_transaction_count': 1}
+{'session_id': 63, 'transaction_isolation_level': 2, 'open_transaction_count': 0}
+
+--- O: sys.dm_tran_transactions_snapshot ---
+(no rows)
+
+--- O: sys.dm_tran_active_snapshot_database_transactions ---
+{'transaction_id': 15246, 'transaction_sequence_num': 60, 'session_id': 61, 'is_snapshot': False, 'max_version_chain_traversed': 0, 'average_version_chain_traversed': 0.0, 'elapsed_time_seconds': 0}
+{'transaction_id': 15280, 'transaction_sequence_num': 61, 'session_id': 62, 'is_snapshot': True, 'first_snapshot_sequence_num': 60, 'max_version_chain_traversed': 1, 'average_version_chain_traversed': 1.0, 'elapsed_time_seconds': 0}
+
+--- O: sys.dm_tran_transactions_snapshot after a second read in B ---
+(no rows)
+
+=== WRITER, seen live (window A) ===
+
+--- A: sys.dm_tran_current_transaction ---
+{'transaction_id': 15246, 'transaction_sequence_num': 60, 'transaction_is_snapshot': False}
+
+--- A: sys.dm_tran_database_transactions ---
+{'database_transaction_begin_lsn': Decimal('43000000275200001'), 'database_transaction_last_lsn': Decimal('43000000275200002')}
+
+--- A: fn_dblog LOP_BEGIN_XACT ---
+{'Transaction ID': '0000:00000468', 'Current LSN': '0000002B:00000AC0:0001', 'Operation': 'LOP_BEGIN_XACT'}
+
+=== LOG SIDE after commit (window C) ===
+
+--- C: cdc.lsn_time_mapping (newest 3) ---
+{'start_lsn': '0000002b00000ac00004', 'tran_id': '000000000468', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 59, 16, 973000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 59, 16, 993000)}
+{'start_lsn': '0000002b00000a980005', 'tran_id': '000000000463', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 59, 8, 880000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 59, 8, 913000)}
+{'start_lsn': '0000002b000007200104', 'tran_id': '000000000453', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 58, 58, 617000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 58, 58, 637000)}
+
+--- C: cdc.dbo_t_CT (newest 3) ---
+{'__$start_lsn': '0000002b00000ac00004', '__$seqval': '0000002b00000ac00002', '__$operation': 1, 'v': 'A'}
+{'__$start_lsn': '0000002b00000a980005', '__$seqval': '0000002b00000a980002', '__$operation': 1, 'v': 'B'}
+{'__$start_lsn': '0000002b000007200104', '__$seqval': '0000002b000007200103', '__$operation': 2, 'v': 'C'}
+
+--- C: fn_dblog rows for Transaction ID 0000:00000468 ---
+{'Current LSN': '0000002B:00000AC0:0001', 'Operation': 'LOP_BEGIN_XACT', 'Context': 'LCX_NULL', 'Transaction ID': '0000:00000468', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 76, 'Log Record Length': 120, 'Previous LSN': '00000000:00000000:0000', 'Flag Bits': '0002', 'Log Reserve': 9492, 'Server UID': 0, 'SPID': 61, 'Beginlog Status': '01000000', 'Xact Type': 1, 'Begin Time': '2026/10/20 02:59:16:973', 'Transaction Name': 'user_transaction', 'Transaction SID': '01', 'Oldest Active Transaction ID': '0000:00000468', 'Xact ID': 15246, 'Xact Node ID': 0, 'Xact Node Local ID': 0, 'Description': '2026/10/20 02:59:16:973;user_transaction;0x01', 'Log Record': '00004c0000000000000000000000020068040000000080003d000000010000000100000000000000d43d3100e9b400008e3b0000000000000000000000000000680400000000000000000000020020000100000475007300650072005f007400720061006e00730061006300740069006f006e0001006b00'}
+{'Current LSN': '0000002B:00000AC0:0002', 'Operation': 'LOP_DELETE_ROWS', 'Context': 'LCX_HEAP', 'Transaction ID': '0000:00000468', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 62, 'Log Record Length': 116, 'Previous LSN': '0000002B:00000AC0:0001', 'Flag Bits': '0406', 'Log Reserve': 330, 'AllocUnitId': 72057594052476928, 'AllocUnitName': 'dbo.t', 'Page ID': '0001:000002c0', 'Slot ID': 1, 'Previous Page LSN': '0000002B:00000AB8:0002', 'PartitionId': 72057594045726720, 'RowFlags': 70, 'Num Elements': 2, 'Offset in Row': 1, 'Modify Size': 1024, 'Number of Locks': 3, 'Lock Information': 'HoBt 72057594045726720:ACQUIRE_LOCK_IX OBJECT: 5:901578250:0 ;ACQUIRE_LOCK_IX PAGE: 5:1:704 ;ACQUIRE_LOCK_X RID: 5:1:704:1', 'Description': 'REPLICATE', 'RowLog Contents 0': '7000040001000001000c00410000000000000000530400000000', 'RowLog Contents 1': '0101000c00000afebc3500000102000402030004', 'RowLog Contents 2': '', 'RowLog Contents 3': '', 'RowLog Contents 4': '', 'RowLog Contents 5': '', 'Log Record': '00003e002b000000c00a0000010006046804000000000301c002000001000100de0000002b000000b80a000002000001000077000000000101000004460002001a0014007000040001000001000c0041000000000000000053040000000003000101000c00000afebc3500000102000402030004'}
+{'Current LSN': '0000002B:00000AC0:0004', 'Operation': 'LOP_COMMIT_XACT', 'Context': 'LCX_NULL', 'Transaction ID': '0000:00000468', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 80, 'Log Record Length': 96, 'Previous LSN': '0000002B:00000AC0:0001', 'Flag Bits': '0006', 'Log Reserve': 102, 'Xact ID': 15246, 'Xact Node ID': 0, 'Xact Node Local ID': 0, 'End AGE': 0, 'End Time': '2026/10/20 02:59:16:993', 'Transaction Begin': '0000002B:00000AC0:0001', 'Replicated Records': 1, 'Oldest Active LSN': '0000002B:00000AC0:0001', 'Server Name': 'none', 'Database Name': 'none', 'Virtual Clock': 0, 'Description': '2026/10/20 02:59:16:993;REPLICATE', 'Log Record': '000050002b000000c00a0000010006006804000000008100da3d3100e9b400002b000000c00a00000100000000000000010000000000000000000000000000008e3b000000000000000000000000000001000a002b000000c00a000001000000'}
+
+=== SNAPSHOT VIEW DIAGNOSIS ===
+rows seen by B itself=0; by observer=0; by observer after B's second read=0
+rows for B's snapshot (XSN 61)=0; lists writer A's XSN 60=False
+dm_tran_current_snapshot inside B: rows=0 (after 2nd read 0); XSNs=[]; lists writer A's XSN 60=False
+
+=== MATCHES ===
+A.transaction_id: in B's own snapshot metadata=False; in server-wide view=True; on log side=['fn_dblog(undocumented).Xact ID']
+A.transaction_sequence_num: in B's own snapshot metadata=True; in server-wide view=True; on log side=['fn_dblog(undocumented).Log Record Length']
+A.database_transaction_begin_lsn: in B's own snapshot metadata=False; in server-wide view=False; on log side=['fn_dblog(undocumented).Current LSN', 'fn_dblog(undocumented).Oldest Active LSN', 'fn_dblog(undocumented).Previous LSN', 'fn_dblog(undocumented).Transaction Begin']
+A.database_transaction_last_lsn: in B's own snapshot metadata=False; in server-wide view=False; on log side=['cdc.change_table.__$seqval', 'fn_dblog(undocumented).Current LSN']
+
+================ SAMPLE 3 ================
+=== READER-VISIBLE (window B) ===
+
+--- B own snapshot: sys.dm_tran_current_transaction ---
+{'transaction_id': 15498, 'transaction_sequence_num': 68, 'first_snapshot_sequence_num': 67, 'last_transaction_sequence_num': 68}
+
+--- B own snapshot: sys.dm_tran_transactions_snapshot (all rows) ---
+(no rows)
+
+--- B own snapshot: sys.dm_tran_current_snapshot ---
+(no rows)
+
+--- B own snapshot: sys.dm_tran_current_snapshot after B's second read ---
+(no rows)
+
+--- B server-wide view: sys.dm_tran_active_snapshot_database_transactions ---
+{'transaction_id': 15464, 'transaction_sequence_num': 67, 'session_id': 61, 'is_snapshot': False, 'max_version_chain_traversed': 0, 'average_version_chain_traversed': 0.0, 'elapsed_time_seconds': 0}
+{'transaction_id': 15498, 'transaction_sequence_num': 68, 'session_id': 62, 'is_snapshot': True, 'first_snapshot_sequence_num': 67, 'max_version_chain_traversed': 1, 'average_version_chain_traversed': 1.0, 'elapsed_time_seconds': 0}
+
+=== OBSERVER (separate session, while B's snapshot is open; B is session 62) ===
+
+--- O: sys.dm_exec_sessions (isolation 5 = SNAPSHOT) ---
+{'session_id': 62, 'transaction_isolation_level': 5, 'open_transaction_count': 1}
+{'session_id': 63, 'transaction_isolation_level': 2, 'open_transaction_count': 0}
+
+--- O: sys.dm_tran_transactions_snapshot ---
+(no rows)
+
+--- O: sys.dm_tran_active_snapshot_database_transactions ---
+{'transaction_id': 15464, 'transaction_sequence_num': 67, 'session_id': 61, 'is_snapshot': False, 'max_version_chain_traversed': 0, 'average_version_chain_traversed': 0.0, 'elapsed_time_seconds': 0}
+{'transaction_id': 15498, 'transaction_sequence_num': 68, 'session_id': 62, 'is_snapshot': True, 'first_snapshot_sequence_num': 67, 'max_version_chain_traversed': 1, 'average_version_chain_traversed': 1.0, 'elapsed_time_seconds': 0}
+
+--- O: sys.dm_tran_transactions_snapshot after a second read in B ---
+(no rows)
+
+=== WRITER, seen live (window A) ===
+
+--- A: sys.dm_tran_current_transaction ---
+{'transaction_id': 15464, 'transaction_sequence_num': 67, 'transaction_is_snapshot': False}
+
+--- A: sys.dm_tran_database_transactions ---
+{'database_transaction_begin_lsn': Decimal('43000000278400001'), 'database_transaction_last_lsn': Decimal('43000000278400002')}
+
+--- A: fn_dblog LOP_BEGIN_XACT ---
+{'Transaction ID': '0000:0000046c', 'Current LSN': '0000002B:00000AE0:0001', 'Operation': 'LOP_BEGIN_XACT'}
+
+=== LOG SIDE after commit (window C) ===
+
+--- C: cdc.lsn_time_mapping (newest 3) ---
+{'start_lsn': '0000002b00000ae00003', 'tran_id': '00000000046c', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 59, 25, 60000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 59, 25, 80000)}
+{'start_lsn': '0000002b00000ac00004', 'tran_id': '000000000468', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 59, 16, 973000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 59, 16, 993000)}
+{'start_lsn': '0000002b00000a980005', 'tran_id': '000000000463', 'tran_begin_time': datetime.datetime(2026, 10, 20, 2, 59, 8, 880000), 'tran_end_time': datetime.datetime(2026, 10, 20, 2, 59, 8, 913000)}
+
+--- C: cdc.dbo_t_CT (newest 3) ---
+{'__$start_lsn': '0000002b00000ae00003', '__$seqval': '0000002b00000ae00002', '__$operation': 1, 'v': 'A'}
+{'__$start_lsn': '0000002b00000ac00004', '__$seqval': '0000002b00000ac00002', '__$operation': 1, 'v': 'A'}
+{'__$start_lsn': '0000002b00000a980005', '__$seqval': '0000002b00000a980002', '__$operation': 1, 'v': 'B'}
+
+--- C: fn_dblog rows for Transaction ID 0000:0000046c ---
+{'Current LSN': '0000002B:00000AE0:0001', 'Operation': 'LOP_BEGIN_XACT', 'Context': 'LCX_NULL', 'Transaction ID': '0000:0000046c', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 76, 'Log Record Length': 120, 'Previous LSN': '00000000:00000000:0000', 'Flag Bits': '0002', 'Log Reserve': 9492, 'Server UID': 0, 'SPID': 61, 'Beginlog Status': '01000000', 'Xact Type': 1, 'Begin Time': '2026/10/20 02:59:25:060', 'Transaction Name': 'user_transaction', 'Transaction SID': '01', 'Oldest Active Transaction ID': '0000:0000046c', 'Xact ID': 15464, 'Xact Node ID': 0, 'Xact Node Local ID': 0, 'Description': '2026/10/20 02:59:25:060;user_transaction;0x01', 'Log Record': '00004c000000000000000000000002006c040000000080003d0000000100000001000000000000004e473100e9b40000683c00000000000000000000000000006c0400000000000000000000020020000100000475007300650072005f007400720061006e00730061006300740069006f006e0001006b00'}
+{'Current LSN': '0000002B:00000AE0:0002', 'Operation': 'LOP_DELETE_ROWS', 'Context': 'LCX_HEAP', 'Transaction ID': '0000:0000046c', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 62, 'Log Record Length': 116, 'Previous LSN': '0000002B:00000AE0:0001', 'Flag Bits': '0406', 'Log Reserve': 330, 'AllocUnitId': 72057594052476928, 'AllocUnitName': 'dbo.t', 'Page ID': '0001:000002c0', 'Slot ID': 2, 'Previous Page LSN': '0000002B:00000AC0:0002', 'PartitionId': 72057594045726720, 'RowFlags': 70, 'Num Elements': 2, 'Offset in Row': 1, 'Modify Size': 1024, 'Number of Locks': 3, 'Lock Information': 'HoBt 72057594045726720:ACQUIRE_LOCK_IX OBJECT: 5:901578250:0 ;ACQUIRE_LOCK_IX PAGE: 5:1:704 ;ACQUIRE_LOCK_X RID: 5:1:704:2', 'Description': 'REPLICATE', 'RowLog Contents 0': '7000040001000001000c00410000000000000000530400000000', 'RowLog Contents 1': '0101000c00000afebc3500000102000402030004', 'RowLog Contents 2': '', 'RowLog Contents 3': '', 'RowLog Contents 4': '', 'RowLog Contents 5': '', 'Log Record': '00003e002b000000e00a0000010006046c04000000000301c002000001000200de0000002b000000c00a000002000001000077000000000101000004460002001a0014007000040001000001000c0041000000000000000053040000000003000101000c00000afebc3500000102000402030004'}
+{'Current LSN': '0000002B:00000AE0:0003', 'Operation': 'LOP_COMMIT_XACT', 'Context': 'LCX_NULL', 'Transaction ID': '0000:0000046c', 'LogBlockGeneration': 0, 'Tag Bits': '0000', 'Log Record Fixed Length': 80, 'Log Record Length': 96, 'Previous LSN': '0000002B:00000AE0:0001', 'Flag Bits': '0006', 'Log Reserve': 102, 'Xact ID': 15464, 'Xact Node ID': 0, 'Xact Node Local ID': 0, 'End AGE': 0, 'End Time': '2026/10/20 02:59:25:080', 'Transaction Begin': '0000002B:00000AE0:0001', 'Replicated Records': 1, 'Oldest Active LSN': '0000002B:00000AE0:0001', 'Server Name': 'none', 'Database Name': 'none', 'Virtual Clock': 0, 'Description': '2026/10/20 02:59:25:080;REPLICATE', 'Log Record': '000050002b000000e00a0000010006006c0400000000810054473100e9b400002b000000e00a0000010000000000000001000000000000000000000000000000683c000000000000000000000000000001000a002b000000e00a000001000200'}
+
+=== SNAPSHOT VIEW DIAGNOSIS ===
+rows seen by B itself=0; by observer=0; by observer after B's second read=0
+rows for B's snapshot (XSN 68)=0; lists writer A's XSN 67=False
+dm_tran_current_snapshot inside B: rows=0 (after 2nd read 0); XSNs=[]; lists writer A's XSN 67=False
+
+=== MATCHES ===
+A.transaction_id: in B's own snapshot metadata=False; in server-wide view=True; on log side=['fn_dblog(undocumented).Xact ID']
+A.transaction_sequence_num: in B's own snapshot metadata=True; in server-wide view=True; on log side=no
+A.database_transaction_begin_lsn: in B's own snapshot metadata=False; in server-wide view=False; on log side=['fn_dblog(undocumented).Current LSN', 'fn_dblog(undocumented).Oldest Active LSN', 'fn_dblog(undocumented).Previous LSN', 'fn_dblog(undocumented).Transaction Begin']
+A.database_transaction_last_lsn: in B's own snapshot metadata=False; in server-wide view=False; on log side=['cdc.change_table.__$seqval', 'fn_dblog(undocumented).Current LSN']
+
+These are facts about identifiers only. A writer identifier links the two sides when it is
+visible to the reader AND appears on the log side; whether a link holds under load is untested.

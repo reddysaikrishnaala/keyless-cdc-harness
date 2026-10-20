@@ -1,0 +1,70 @@
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  assume_low_wrong_racy    1499
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT: PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: m1 ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  assume_low_wrong_racy    344
+  assume_high_wrong_racy   1997
+  probe_wrong_racy         180
+  probe_unusable           0
+  VERDICT: PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 125, "C": 32, "E": 92, "D": 73, "A": 49}, "estimate": {"C": 36, "A": 51, "D": 69, "B": 126, "E": 89}, "truth_at_high": {"A": 51, "B": 126, "C": 36, "D": 69, "E": 90}}
+
+=== mode: m1-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  assume_low_wrong_racy    244
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1389
+  probe_unusable           0
+  VERDICT: PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 124, "C": 32, "E": 93, "D": 73, "A": 50}, "estimate": {"C": 36, "A": 50, "D": 69, "B": 126, "E": 90}, "truth_at_high": {"A": 50, "B": 127, "C": 36, "D": 69, "E": 90}}
+
+=== mode: m2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  assume_low_wrong_racy    342
+  assume_high_wrong_racy   1999
+  probe_wrong_racy         1508
+  probe_unusable           0
+  VERDICT: PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 124, "C": 32, "E": 93, "D": 73, "A": 50}, "estimate": {"C": 36, "A": 51, "D": 69, "B": 126, "E": 91}, "truth_at_high": {"A": 50, "B": 127, "C": 36, "D": 69, "E": 90}}
+
+=== mode: m2-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  assume_low_wrong_racy    268
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1471
+  probe_unusable           0
+  VERDICT: PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 52, "B": 127, "E": 90, "D": 67, "C": 32}, "estimate": {"C": 32, "A": 52, "D": 70, "B": 123, "E": 88}, "truth_at_high": {"A": 51, "B": 123, "C": 32, "D": 70, "E": 87}}
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  assume_low_wrong_racy    447
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"C": 33, "B": 127, "E": 90, "D": 64, "A": 51}, "estimate": {"C": 33, "A": 52, "D": 67, "B": 122, "E": 88}, "truth_at_high": {"A": 51, "B": 123, "C": 32, "D": 67, "E": 88}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"C": 33, "B": 127, "E": 90, "D": 64, "A": 51}, "estimate": {"C": 33, "B": 127, "E": 90, "D": 64, "A": 51}, "truth_at_high": {"A": 51, "B": 123, "C": 32, "D": 67, "E": 88}}
