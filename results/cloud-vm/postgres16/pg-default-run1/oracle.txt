@@ -1,0 +1,2 @@
+decoded 98455 transactions
+ORACLE IMPOSSIBLE: 41289 DELETEs and 29635 UPDATEs carry no old row data (replica identity DEFAULT on a keyless table); the change stream cannot say which value they removed

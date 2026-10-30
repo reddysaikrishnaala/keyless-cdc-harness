@@ -1,0 +1,68 @@
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  multi_reorder_read       0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  set_wrong_racy           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        486
+  multi_reorder_read       550
+  assume_low_wrong_racy    1358
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"B": 180, "C": 138, "D": 282, "E": 246, "A": 138}, "estimate": {"B": 180, "C": 138, "D": 282, "E": 246, "A": 138}, "truth_at_high": {"A": 142, "B": 183, "C": 140, "D": 284, "E": 241}}
+  example (assume_low wrong): {"race": 1, "chunk_counts": {"B": 183, "C": 140, "D": 284, "E": 241, "A": 142}, "estimate": {"C": 135, "E": 244, "A": 139, "B": 183, "D": 283}, "truth_at_high": {"A": 139, "B": 183, "C": 134, "D": 283, "E": 245}}
+
+=== mode: pos1 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        365
+  multi_reorder_read       416
+  assume_low_wrong_racy    1351
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1509
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 173, "C": 142, "D": 277, "E": 240, "A": 136}, "estimate": {"C": 139, "E": 245, "A": 138, "B": 173, "D": 277}, "truth_at_high": {"A": 138, "B": 172, "C": 139, "D": 277, "E": 245}}
+
+=== mode: pos2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        439
+  multi_reorder_read       403
+  assume_low_wrong_racy    1385
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1882
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 182, "C": 139, "D": 283, "E": 240, "A": 141}, "estimate": {"C": 132, "E": 243, "A": 140, "B": 185, "D": 285}, "truth_at_high": {"A": 139, "B": 185, "C": 132, "D": 285, "E": 245}}
+
+=== mode: set ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        403
+  multi_reorder_read       415
+  assume_low_wrong_racy    1405
+  assume_high_wrong_racy   2000
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count

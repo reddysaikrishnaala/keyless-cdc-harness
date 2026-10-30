@@ -2,7 +2,7 @@
 
 Test harness for **exact change data capture (CDC) of keyless tables with identical duplicate rows**, as studied in:
 
-> S. Ala *et al.*, "Exact Change Data Capture for Keyless Tables with Duplicate Rows: An Indistinguishability Argument and an Empirical Study of MySQL, MariaDB, PostgreSQL and SQL Server," manuscript, 2026.
+> "Exact Change Data Capture for Keyless Tables with Duplicate Rows: An Indistinguishability Argument and an Empirical Study of MySQL, MariaDB, PostgreSQL and SQL Server," manuscript under review, 2026.
 
 ## The question
 
@@ -30,7 +30,8 @@ Probe modes:
 
 - Python 3.10+ and `pip install -r requirements.txt`. The scripts look for a virtual environment at `~/caseb-venv` first.
 - Docker for MySQL, MariaDB and SQL Server. On Apple Silicon, SQL Server runs as `linux/amd64` under emulation.
-- PostgreSQL 16 with `wal_level = logical` and a free replication slot. `run_postgres.sh` connects to `127.0.0.1:5433` as `postgres` by default (override with `PGHOST`, `PGPORT`, `PGUSER`).
+- PostgreSQL 16 with `wal_level = logical` and a free replication slot, plus the `psql` client. `run_postgres.sh` connects to `127.0.0.1:5433` as `postgres` by default (override with `PGHOST`, `PGPORT`, `PGUSER`). The results below used the official image:
+  `docker run -d --name caseb-pg -p 5433:5432 -e POSTGRES_HOST_AUTH_METHOD=trust postgres:16 -c wal_level=logical`
 - The SQL Server harness reads the log end through the undocumented `sys.fn_dblog`, for test instrumentation only.
 
 ## Running
@@ -59,7 +60,7 @@ IDENTITY=full RUNS=3 bash run_postgres.sh              # REPLICA IDENTITY FULL (
 
 Results are written to `runs/`.
 
-> **Status of the run scripts.** `run_sqlserver.sh` produced the SQL Server results below. The paper's MySQL results were produced with the same Python scripts and settings, run by hand. `run_mysql.sh` packages those steps: MySQL 8.0 with GTIDs and row-based binlog, `RESET MASTER` before setup, 8 writers, 90 s runs, 1,500 control races, 2,000 races per probe mode, a 20 ms settle delay, and 2 ms gap variants in run 3. `run_mysql.sh` produced the MySQL 8.4 results below, `run_mariadb.sh` the MariaDB results, and `run_postgres.sh` the PostgreSQL results. `run_sqlserver_windows.ps1` has not yet been run.
+> **Status of the run scripts.** All results under `results/` except `results/cloud-vm/` were produced by the run scripts in Docker on one Apple Silicon machine: `run_sqlserver.sh` (SQL Server), `TAG=my80 bash run_mysql.sh` (MySQL 8.0), `IMG=mysql:8.4 TAG=my84 bash run_mysql.sh` (MySQL 8.4), `run_mariadb.sh` (MariaDB) and `run_postgres.sh` against the `postgres:16` image (PostgreSQL). `results/postgres/pg-log.txt` begins with two attempts that stopped immediately because the `psql` client was not installed; the runs that follow are complete. `run_sqlserver_windows.ps1` has not yet been run.
 
 ## Results in this repository
 
@@ -73,27 +74,28 @@ python score.py --oracle results/mysql/run1/oracle.json --probes /tmp/all.jsonl 
 
 | Folder | Engine | Contents |
 |---|---|---|
-| `results/mysql/run1..3` | MySQL 8.0.46 (Ubuntu build, Linux x86-64) | Table I |
+| `results/mysql/run1..3` | MySQL 8.0.46 (Docker, Apple Silicon) | Table I (log: `my-log.txt`) |
 | `results/sqlserver/run1..3` | SQL Server 2022 CU27 (16.0.4305.5), Linux container under x86-64 emulation | Table II |
-| `results/sqlserver/linkage*.txt` | same | Table III (identifier linkage, observer session, `dm_tran_current_snapshot`) |
+| `results/sqlserver/linkage*.txt` | same | Table III: three identifier checks of three samples each (`linkage.txt`; `linkage-observer-check2.txt`, recovered verbatim from the run log after the third check overwrote its file; `linkage-observer.txt`) |
 | `results/mysql84/run1..3` | MySQL 8.4.11 (Docker, Apple Silicon) | Same probes as MySQL 8.0 |
 | `results/mariadb/run1..3` | MariaDB 11.4.13 (Docker, Apple Silicon) | plain, pos and snap probes |
 | `results/mariadb/snaponly-run1..3` | same | Snapshot-position probe only, 0/2/10 ms gaps |
-| `results/postgres/pg-default-run1` | PostgreSQL 16.15 (Linux x86-64), default replica identity | Change stream cannot be replayed |
-| `results/postgres/pg-full-run1..3` | PostgreSQL 16.15, `REPLICA IDENTITY FULL` | Position and snapshot-set probes |
+| `results/postgres/pg-default-run1` | PostgreSQL 16.15 (Docker `postgres:16`, Apple Silicon), default replica identity | Change stream cannot be replayed |
+| `results/postgres/pg-full-run1..3` | same, `REPLICA IDENTITY FULL` | Position and snapshot-set probes (log: `pg-log.txt`) |
+| `results/cloud-vm/mysql80`, `results/cloud-vm/postgres16` | Earlier runs of the same scripts on a cloud Linux x86-64 VM (MySQL 8.0.46 Ubuntu build; PostgreSQL 16.15 Ubuntu package) | Superseded by the runs above; kept for comparison |
 
 Headline numbers, summed over three runs:
 - **Positive control:** 0 errors in every run on every engine.
-- **MySQL:** the `gtid_executed` probe was wrong in 10.6% of racing reads and the `log_status` probe in 75.8%.
+- **MySQL 8.0.46:** 0 control errors in 4,500. The `gtid_executed` probe was wrong in 9.7% of racing reads (579 of 5,995) and the `log_status` probe in 92.8% (5,567 of 6,000).
 - **SQL Server:** the log-end probe was wrong in 67.7% of racing reads when read before the snapshot read and 36.3% when read after. 74 of 6,272 racing snapshot reads (about 1 in 85) saw commits out of CDC commit order. Both documented per-snapshot views returned no rows.
 - **MySQL 8.4.11:** same picture as 8.0: `gtid_executed` wrong in 12.3% and `log_status` in 92.9% of racing reads; 0 control errors in 4,500.
 - **MariaDB 11.4.13:** 0 control errors in 9,000. `SHOW MASTER STATUS` inside the snapshot was wrong in 44.3% of racing reads. The documented snapshot position (`Binlog_snapshot_position`) was right in almost every read but **wrong in 40 of 52,489** (0.076%): 5 of 20,999 with no gap, 19 of 16,492 with a 2 ms gap, 16 of 14,998 with a 10 ms gap. Each error was off by 5 to 57 commits.
-- **PostgreSQL, default replica identity (no schema change):** the change stream recorded 41,289 deletes and 29,635 updates of the keyless table without the old row value, so it cannot say which value they removed.
-- **PostgreSQL, `REPLICA IDENTITY FULL`:** 0 control errors in 4,500 reads. The WAL-position probes were wrong in 74.4% and 94.3% of racing reads. The documented snapshot set (`pg_current_snapshot()`) was wrong in **0 of 7,498** racing reads.
+- **PostgreSQL, default replica identity (no schema change):** the change stream recorded 177,060 deletes and 126,343 updates of the keyless table without the old row value, so it cannot say which value they removed.
+- **PostgreSQL, `REPLICA IDENTITY FULL`:** 0 control errors in 4,500 reads. The WAL-position probes were wrong in 89.4% (WAL position read first) and 99.3% (read after the count) of racing reads. The documented snapshot set (`pg_current_snapshot()`) was wrong in **0 of 7,500** racing reads.
 
 ## Limitations
 
-- SQL Server was tested on Linux under emulation, not on Windows.
+- All engines ran in Docker on one Apple Silicon machine; SQL Server ran as a Linux x86-64 container under emulation, not on Windows. Error rates depend on platform and timing: the earlier x86-64 cloud runs in `results/cloud-vm/` reached the same verdicts with different percentages (for example, MySQL `log_status` 75.8% and PostgreSQL WAL-position probes 74.4% and 94.3%).
 - The MariaDB snapshot-position errors are rare and have not been traced to a cause; they were reproduced in four separate server instances.
 - PostgreSQL's documentation does not state explicitly that `pg_current_snapshot()` returns the transaction's own snapshot under `REPEATABLE READ`; the zero-error result supports it empirically. Subtransactions are not covered by the workload.
 - The scorer explains at most one out-of-order commit per read automatically. One read in SQL Server run 3 needed two and was checked by hand, and the scorer marks that run INVALID by its strict rule.

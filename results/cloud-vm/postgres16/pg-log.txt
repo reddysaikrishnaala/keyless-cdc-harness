@@ -1,0 +1,299 @@
+===== Tue Oct 20 12:19:21 EDT 2026 : 1 run(s), identity=default, 30s each =====
+
+########## RUN 1 (default) ##########
+PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+slot created at 0/24CBBC0
+CREATE TABLE
+1
+d
+wrote 500 races to runs/pg-default-run1/p_plain.jsonl
+wrote 500 races to runs/pg-default-run1/p_set.jsonl
+wrote 500 races to runs/pg-default-run1/p_pos1.jsonl
+wrote 500 races to runs/pg-default-run1/p_pos2.jsonl
+committed 98462 writer transactions
+wrote 300 control races to runs/pg-default-run1/p_ctl.jsonl
+decoded 98455 transactions
+ORACLE IMPOSSIBLE: 41289 DELETEs and 29635 UPDATEs carry no old row data (replica identity DEFAULT on a keyless table); the change stream cannot say which value they removed
+No oracle for this run, so no scoring (see oracle.txt).
+
+DONE Tue Oct 20 12:19:53 EDT 2026. Results are in runs/
+===== Tue Oct 20 12:19:53 EDT 2026 : 3 run(s), identity=full, 90s each =====
+
+########## RUN 1 (full) ##########
+PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+slot created at 0/391BA28
+CREATE TABLE
+ALTER TABLE
+f
+wrote 2000 races to runs/pg-full-run1/p_plain.jsonl
+wrote 2000 races to runs/pg-full-run1/p_pos1.jsonl
+wrote 2000 races to runs/pg-full-run1/p_pos2.jsonl
+wrote 2000 races to runs/pg-full-run1/p_set.jsonl
+committed 264076 writer transactions
+wrote 1500 control races to runs/pg-full-run1/p_ctl.jsonl
+decoded 264063 transactions
+oracle self-check passed: replay matches live table {'E': 3535, 'D': 3473, 'A': 2995, 'C': 2748, 'B': 3252}
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  multi_reorder_read       0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  set_wrong_racy           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        486
+  multi_reorder_read       550
+  assume_low_wrong_racy    1358
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"B": 180, "C": 138, "D": 282, "E": 246, "A": 138}, "estimate": {"B": 180, "C": 138, "D": 282, "E": 246, "A": 138}, "truth_at_high": {"A": 142, "B": 183, "C": 140, "D": 284, "E": 241}}
+  example (assume_low wrong): {"race": 1, "chunk_counts": {"B": 183, "C": 140, "D": 284, "E": 241, "A": 142}, "estimate": {"C": 135, "E": 244, "A": 139, "B": 183, "D": 283}, "truth_at_high": {"A": 139, "B": 183, "C": 134, "D": 283, "E": 245}}
+
+=== mode: pos1 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        365
+  multi_reorder_read       416
+  assume_low_wrong_racy    1351
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1509
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 173, "C": 142, "D": 277, "E": 240, "A": 136}, "estimate": {"C": 139, "E": 245, "A": 138, "B": 173, "D": 277}, "truth_at_high": {"A": 138, "B": 172, "C": 139, "D": 277, "E": 245}}
+
+=== mode: pos2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        439
+  multi_reorder_read       403
+  assume_low_wrong_racy    1385
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1882
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 182, "C": 139, "D": 283, "E": 240, "A": 141}, "estimate": {"C": 132, "E": 243, "A": 140, "B": 185, "D": 285}, "truth_at_high": {"A": 139, "B": 185, "C": 132, "D": 285, "E": 245}}
+
+=== mode: set ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        403
+  multi_reorder_read       415
+  assume_low_wrong_racy    1405
+  assume_high_wrong_racy   2000
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+########## RUN 2 (full) ##########
+PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+slot created at 0/6A99098
+CREATE TABLE
+ALTER TABLE
+f
+wrote 2000 races to runs/pg-full-run2/p_plain.jsonl
+wrote 2000 races to runs/pg-full-run2/p_pos1.jsonl
+wrote 2000 races to runs/pg-full-run2/p_set.jsonl
+wrote 2000 races to runs/pg-full-run2/p_pos2.jsonl
+committed 261220 writer transactions
+wrote 1500 control races to runs/pg-full-run2/p_ctl.jsonl
+decoded 261207 transactions
+oracle self-check passed: replay matches live table {'E': 3512, 'D': 3494, 'A': 2982, 'C': 2751, 'B': 3175}
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  multi_reorder_read       0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  set_wrong_racy           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        464
+  multi_reorder_read       509
+  assume_low_wrong_racy    1289
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"B": 170, "C": 139, "D": 275, "E": 239, "A": 119}, "estimate": {"D": 277, "E": 241, "B": 168, "A": 116, "C": 139}, "truth_at_high": {"A": 120, "B": 171, "C": 141, "D": 273, "E": 237}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"B": 170, "C": 139, "D": 275, "E": 239, "A": 119}, "estimate": {"B": 170, "C": 139, "D": 275, "E": 239, "A": 119}, "truth_at_high": {"A": 120, "B": 171, "C": 141, "D": 273, "E": 237}}
+
+=== mode: pos1 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        388
+  multi_reorder_read       419
+  assume_low_wrong_racy    1341
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1477
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 3, "chunk_counts": {"B": 176, "C": 145, "D": 273, "E": 247, "A": 128}, "estimate": {"D": 281, "E": 241, "B": 178, "A": 131, "C": 141}, "truth_at_high": {"A": 132, "B": 178, "C": 141, "D": 284, "E": 240}}
+
+=== mode: pos2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        363
+  multi_reorder_read       426
+  assume_low_wrong_racy    1348
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1891
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 167, "C": 148, "D": 278, "E": 233, "A": 119}, "estimate": {"D": 274, "E": 239, "B": 171, "A": 125, "C": 146}, "truth_at_high": {"A": 125, "B": 171, "C": 145, "D": 274, "E": 239}}
+
+=== mode: set ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        421
+  multi_reorder_read       441
+  assume_low_wrong_racy    1372
+  assume_high_wrong_racy   2000
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+########## RUN 3 (full) ##########
+PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+slot created at 0/9B670E8
+CREATE TABLE
+ALTER TABLE
+f
+wrote 1500 races to runs/pg-full-run3/p_pos1gap.jsonl
+wrote 1500 races to runs/pg-full-run3/p_setgap.jsonl
+wrote 2000 races to runs/pg-full-run3/p_plain.jsonl
+wrote 2000 races to runs/pg-full-run3/p_pos1.jsonl
+wrote 2000 races to runs/pg-full-run3/p_set.jsonl
+wrote 2000 races to runs/pg-full-run3/p_pos2.jsonl
+committed 257017 writer transactions
+wrote 1500 control races to runs/pg-full-run3/p_ctl.jsonl
+decoded 257007 transactions
+oracle self-check passed: replay matches live table {'E': 3482, 'D': 3457, 'A': 2900, 'C': 2701, 'B': 3140}
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  multi_reorder_read       0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  set_wrong_racy           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: plain ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        472
+  multi_reorder_read       472
+  assume_low_wrong_racy    1335
+  assume_high_wrong_racy   1999
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"B": 171, "C": 132, "D": 318, "E": 282, "A": 144}, "estimate": {"A": 140, "E": 283, "D": 317, "B": 171, "C": 133}, "truth_at_high": {"A": 140, "B": 170, "C": 134, "D": 317, "E": 283}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"B": 171, "C": 132, "D": 318, "E": 282, "A": 144}, "estimate": {"B": 171, "C": 132, "D": 318, "E": 282, "A": 144}, "truth_at_high": {"A": 140, "B": 170, "C": 134, "D": 317, "E": 283}}
+
+=== mode: pos1 ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        404
+  multi_reorder_read       374
+  assume_low_wrong_racy    1357
+  assume_high_wrong_racy   1999
+  probe_wrong_racy         1479
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 175, "C": 132, "D": 317, "E": 271, "A": 127}, "estimate": {"A": 123, "E": 273, "D": 320, "B": 177, "C": 129}, "truth_at_high": {"A": 124, "B": 177, "C": 129, "D": 320, "E": 273}}
+
+=== mode: pos1-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        258
+  multi_reorder_read       284
+  assume_low_wrong_racy    1002
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1105
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 3, "chunk_counts": {"B": 185, "C": 125, "D": 294, "E": 250, "A": 138}, "estimate": {"A": 136, "E": 263, "D": 298, "B": 184, "C": 125}, "truth_at_high": {"A": 136, "B": 184, "C": 127, "D": 297, "E": 264}}
+
+=== mode: pos2 ===
+  races                    2000
+  racy                     1998
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        377
+  multi_reorder_read       396
+  assume_low_wrong_racy    1362
+  assume_high_wrong_racy   1998
+  probe_wrong_racy         1885
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 170, "C": 132, "D": 318, "E": 278, "A": 143}, "estimate": {"A": 145, "E": 281, "D": 314, "B": 173, "C": 130}, "truth_at_high": {"A": 145, "B": 171, "C": 131, "D": 316, "E": 282}}
+
+=== mode: set ===
+  races                    2000
+  racy                     1999
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        391
+  multi_reorder_read       379
+  assume_low_wrong_racy    1367
+  assume_high_wrong_racy   1999
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: set-gap2 ===
+  races                    1500
+  racy                     1499
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        276
+  multi_reorder_read       281
+  assume_low_wrong_racy    1026
+  assume_high_wrong_racy   1499
+  set_wrong_racy           0
+  VERDICT (snapshot set): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+DONE Tue Oct 20 12:25:55 EDT 2026. Results are in runs/

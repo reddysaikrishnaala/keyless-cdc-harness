@@ -1,2 +1,3 @@
-committed 101519 writer transactions
-wrote 1500 control races to runs/p_ctl.jsonl
+WARNING: control races did not finish within --seconds; races after the writers stop are not racy
+committed 61180 writer transactions
+wrote 1500 control races to runs/my80-run3/p_ctl.jsonl

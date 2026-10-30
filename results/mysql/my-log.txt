@@ -1,0 +1,221 @@
+===== Fri Oct 30 04:57:34 EDT 2026 : 3 run(s), 90s each =====
+
+########## RUN 1 ##########
+waiting for MySQL to start...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+8.0.46
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+wrote 2000 races to runs/my80-run1/p_plain.jsonl
+wrote 2000 races to runs/my80-run1/p_m1.jsonl
+wrote 2000 races to runs/my80-run1/p_m2.jsonl
+committed 113181 writer transactions
+wrote 1500 control races to runs/my80-run1/p_ctl.jsonl
+oracle: 113185 transactions, 111859 changed caseb.t -> runs/my80-run1/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: m1 ===
+  races                    2000
+  racy                     1995
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    323
+  assume_high_wrong_racy   1995
+  probe_wrong_racy         209
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"A": 27, "B": 89, "E": 39, "D": 51, "C": 5}, "estimate": {"A": 27, "C": 6, "E": 42, "B": 89, "D": 50}, "truth_at_high": {"A": 27, "B": 89, "C": 6, "D": 50, "E": 43}}
+
+=== mode: m2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    329
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1838
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"D": 50, "B": 87, "E": 39, "A": 19, "C": 6}, "estimate": {"A": 18, "C": 7, "E": 43, "D": 49, "B": 88}, "truth_at_high": {"A": 26, "B": 89, "C": 6, "D": 50, "E": 44}}
+
+=== mode: plain ===
+  races                    2000
+  racy                     1995
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    359
+  assume_high_wrong_racy   1995
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"D": 50, "B": 88, "E": 39, "A": 19, "C": 5}, "estimate": {"A": 27, "C": 4, "E": 39, "D": 51, "B": 91}, "truth_at_high": {"A": 27, "B": 90, "C": 5, "D": 51, "E": 39}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"D": 50, "B": 88, "E": 39, "A": 19, "C": 5}, "estimate": {"D": 50, "B": 88, "E": 39, "A": 19, "C": 5}, "truth_at_high": {"A": 27, "B": 90, "C": 5, "D": 51, "E": 39}}
+
+########## RUN 2 ##########
+waiting for MySQL to start...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+8.0.46
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+wrote 2000 races to runs/my80-run2/p_plain.jsonl
+wrote 2000 races to runs/my80-run2/p_m1.jsonl
+wrote 2000 races to runs/my80-run2/p_m2.jsonl
+committed 110119 writer transactions
+wrote 1500 control races to runs/my80-run2/p_ctl.jsonl
+oracle: 110119 transactions, 108823 changed caseb.t -> runs/my80-run2/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: m1 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    329
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         237
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"D": 66, "B": 128, "E": 121, "A": 70, "C": 38}, "estimate": {"A": 70, "B": 131, "D": 69, "C": 34, "E": 122}, "truth_at_high": {"A": 70, "B": 130, "C": 34, "D": 70, "E": 122}}
+
+=== mode: m2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    340
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1850
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"D": 66, "B": 128, "E": 121, "A": 70, "C": 38}, "estimate": {"A": 69, "B": 133, "D": 65, "C": 38, "E": 120}, "truth_at_high": {"A": 68, "B": 134, "C": 36, "D": 71, "E": 119}}
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    368
+  assume_high_wrong_racy   1999
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"D": 66, "B": 128, "E": 121, "A": 70, "C": 38}, "estimate": {"D": 66, "B": 128, "E": 121, "A": 70, "C": 38}, "truth_at_high": {"A": 70, "B": 130, "C": 34, "D": 70, "E": 122}}
+  example (assume_low wrong): {"race": 6, "chunk_counts": {"B": 134, "E": 121, "D": 63, "A": 58, "C": 35}, "estimate": {"A": 60, "B": 130, "D": 70, "C": 34, "E": 121}, "truth_at_high": {"A": 60, "B": 130, "C": 35, "D": 70, "E": 121}}
+
+########## RUN 3 ##########
+waiting for MySQL to start...
+mysql: [Warning] Using a password on the command line interface can be insecure.
+8.0.46
+mysql: [Warning] Using a password on the command line interface can be insecure.
+mysql: [Warning] Using a password on the command line interface can be insecure.
+wrote 1500 races to runs/my80-run3/p_m1gap.jsonl
+wrote 1500 races to runs/my80-run3/p_m2gap.jsonl
+wrote 2000 races to runs/my80-run3/p_plain.jsonl
+wrote 2000 races to runs/my80-run3/p_m1.jsonl
+wrote 2000 races to runs/my80-run3/p_m2.jsonl
+WARNING: control races did not finish within --seconds; races after the writers stop are not racy
+committed 61180 writer transactions
+wrote 1500 control races to runs/my80-run3/p_ctl.jsonl
+oracle: 61188 transactions, 60459 changed caseb.t -> runs/my80-run3/oracle.json
+
+=== mode: ctl ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    1500
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         0
+  probe_unusable           0
+  VERDICT (position): PROBE PASSED EMPIRICALLY - still needs a documented guarantee to count
+
+=== mode: m1 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    170
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         133
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 14, "chunk_counts": {"B": 90, "E": 50, "D": 57, "A": 30, "C": 18}, "estimate": {"D": 57, "C": 16, "E": 49, "A": 25, "B": 93}, "truth_at_high": {"A": 25, "B": 94, "C": 15, "D": 57, "E": 49}}
+
+=== mode: m1-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    121
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1381
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 88, "D": 58, "E": 39, "A": 35, "C": 13}, "estimate": {"D": 57, "C": 13, "E": 40, "A": 35, "B": 89}, "truth_at_high": {"A": 35, "B": 88, "C": 13, "D": 57, "E": 40}}
+
+=== mode: m2 ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    197
+  assume_high_wrong_racy   2000
+  probe_wrong_racy         1879
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 87, "D": 60, "E": 40, "C": 14, "A": 33}, "estimate": {"D": 59, "C": 13, "E": 40, "A": 32, "B": 85}, "truth_at_high": {"A": 34, "B": 86, "C": 12, "D": 57, "E": 39}}
+
+=== mode: m2-gap2 ===
+  races                    1500
+  racy                     1500
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    152
+  assume_high_wrong_racy   1500
+  probe_wrong_racy         1471
+  probe_unusable           0
+  VERDICT (position): PROBE FAILED - it does not identify the position the chunk saw
+  example (probe wrong): {"race": 0, "chunk_counts": {"B": 87, "D": 60, "E": 40, "C": 14, "A": 33}, "estimate": {"D": 59, "C": 13, "E": 40, "A": 32, "B": 85}, "truth_at_high": {"A": 34, "B": 86, "C": 12, "D": 57, "E": 39}}
+
+=== mode: plain ===
+  races                    2000
+  racy                     2000
+  bad_watermarks           0
+  inconsistent_read        0
+  out_of_order_read        0
+  assume_low_wrong_racy    195
+  assume_high_wrong_racy   2000
+  VERDICT: AMBIGUITY REPRODUCED - neither naive assumption is safe
+  example (assume_low wrong): {"race": 0, "chunk_counts": {"B": 88, "D": 58, "E": 39, "A": 35, "C": 13}, "estimate": {"D": 55, "C": 11, "E": 38, "A": 36, "B": 87}, "truth_at_high": {"A": 34, "B": 86, "C": 12, "D": 57, "E": 39}}
+  example (assume_high wrong): {"race": 0, "chunk_counts": {"B": 88, "D": 58, "E": 39, "A": 35, "C": 13}, "estimate": {"B": 88, "D": 58, "E": 39, "A": 35, "C": 13}, "truth_at_high": {"A": 34, "B": 86, "C": 12, "D": 57, "E": 39}}
+
+DONE Fri Oct 30 05:02:59 EDT 2026. Results are in runs/

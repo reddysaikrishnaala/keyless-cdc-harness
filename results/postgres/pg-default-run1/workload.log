@@ -1,2 +1,3 @@
-committed 98462 writer transactions
-wrote 300 control races to runs/pg-default-run1/p_ctl.jsonl
+WARNING: control races did not finish within --seconds; races after the writers stop are not racy
+committed 420546 writer transactions
+wrote 1500 control races to runs/pg-default-run1/p_ctl.jsonl
