@@ -75,6 +75,7 @@ python score.py --oracle results/mysql/run1/oracle.json --probes /tmp/all.jsonl 
 | Folder | Engine | Contents |
 |---|---|---|
 | `results/mysql/run1..3` | MySQL 8.0.46 (Docker, Apple Silicon) | Table I (log: `my-log.txt`) |
+| `results/mysql/linkage.txt` | same | Identifier linkage: InnoDB trx_id versus binlog GTID/Xid (`mysql/linkage.sql`) |
 | `results/sqlserver/run1..3` | SQL Server 2022 CU27 (16.0.4305.5), Linux container under x86-64 emulation | Table II |
 | `results/sqlserver/linkage*.txt` | same | Table III: three identifier checks of three samples each (`linkage.txt`; `linkage-observer-check2.txt`, recovered verbatim from the run log after the third check overwrote its file; `linkage-observer.txt`) |
 | `results/mysql84/run1..3` | MySQL 8.4.11 (Docker, Apple Silicon) | Same probes as MySQL 8.0 |

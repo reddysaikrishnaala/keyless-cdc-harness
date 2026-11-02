@@ -1,0 +1,139 @@
+MySQL 8.0.46 identifier linkage check (mysql/linkage.sql), Docker on Apple Silicon, 2026-11-02.
+Window A = writer, window B = snapshot reader; A's binlog events read with SHOW BINLOG EVENTS.
+Result: writer InnoDB trx_id 1833; its delete is GTID :14 with binlog Xid 22. No identifier matches.
+
+================ WINDOW A (writer) ================
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.0.46 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2026, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> USE caseb;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> DELETE FROM t WHERE v = 'A' LIMIT 1;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT trx_id FROM information_schema.INNODB_TRX WHERE trx_mysql_thread_id = CONNECTION_ID();
++--------+
+| trx_id |
++--------+
+|   1833 |
++--------+
+1 row in set (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT @@GLOBAL.gtid_executed;
++-------------------------------------------+
+| @@GLOBAL.gtid_executed                    |
++-------------------------------------------+
+| f29dc708-d6d5-11f1-8cb8-46acb35861b5:1-14 |
++-------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW BINARY LOGS;
++---------------+-----------+-----------+
+| Log_name      | File_size | Encrypted |
++---------------+-----------+-----------+
+| binlog.000001 |       180 | No        |
+| binlog.000002 |   3350017 | No        |
+| binlog.000003 |      2486 | No        |
++---------------+-----------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> SHOW BINLOG EVENTS IN 'binlog.000003';
++---------------+------+----------------+-----------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Log_name      | Pos  | Event_type     | Server_id | End_log_pos | Info                                                                                                                                                                    |
++---------------+------+----------------+-----------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| binlog.000003 |    4 | Format_desc    |         1 |         126 | Server ver: 8.0.46, Binlog ver: 4                                                                                                                                       |
+| binlog.000003 |  126 | Previous_gtids |         1 |         197 | f29dc708-d6d5-11f1-8cb8-46acb35861b5:1-5                                                                                                                                |
+| binlog.000003 |  197 | Gtid           |         1 |         274 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:6'                                                                                                       |
+| binlog.000003 |  274 | Query          |         1 |         382 | DROP DATABASE IF EXISTS caseb                                                                                                                                           |
+| binlog.000003 |  382 | Gtid           |         1 |         459 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:7'                                                                                                       |
+| binlog.000003 |  459 | Query          |         1 |         570 | CREATE DATABASE caseb /* xid=5 */                                                                                                                                       |
+| binlog.000003 |  570 | Gtid           |         1 |         649 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:8'                                                                                                       |
+| binlog.000003 |  649 | Query          |         1 |         838 | CREATE TABLE caseb.t (
+  v VARCHAR(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL
+) ENGINE=InnoDB /* xid=6 */                                                    |
+| binlog.000003 |  838 | Gtid           |         1 |         917 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:9'                                                                                                       |
+| binlog.000003 |  917 | Query          |         1 |        1167 | CREATE USER IF NOT EXISTS 'caseb'@'%' IDENTIFIED WITH 'caching_sha2_password' AS '$A$005$fP2{\'IC2\n  </OIPipyplHEstndrOGWiLnlSyYWkpH.GYGMvtaH4uUD' /* xid=7 */ |
+| binlog.000003 | 1167 | Gtid           |         1 |        1244 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:10'                                                                                                      |
+| binlog.000003 | 1244 | Query          |         1 |        1413 | GRANT SELECT, INSERT, UPDATE, DELETE ON `caseb`.* TO 'caseb'@'%' /* xid=8 */                                                                                            |
+| binlog.000003 | 1413 | Gtid           |         1 |        1492 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:11'                                                                                                      |
+| binlog.000003 | 1492 | Query          |         1 |        1670 | GRANT REPLICATION SLAVE, REPLICATION CLIENT, BACKUP_ADMIN ON *.* TO 'caseb'@'%' /* xid=9 */                                                                             |
+| binlog.000003 | 1670 | Gtid           |         1 |        1747 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:12'                                                                                                      |
+| binlog.000003 | 1747 | Query          |         1 |        1918 | GRANT SELECT ON `performance_schema`.* TO 'caseb'@'%' /* xid=10 */                                                                                                      |
+| binlog.000003 | 1918 | Gtid           |         1 |        1997 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:13'                                                                                                      |
+| binlog.000003 | 1997 | Query          |         1 |        2073 | BEGIN                                                                                                                                                                   |
+| binlog.000003 | 2073 | Table_map      |         1 |        2130 | table_id: 88 (caseb.t)                                                                                                                                                  |
+| binlog.000003 | 2130 | Write_rows     |         1 |        2174 | table_id: 88 flags: STMT_END_F                                                                                                                                          |
+| binlog.000003 | 2174 | Xid            |         1 |        2205 | COMMIT /* xid=13 */                                                                                                                                                     |
+| binlog.000003 | 2205 | Gtid           |         1 |        2284 | SET @@SESSION.GTID_NEXT= 'f29dc708-d6d5-11f1-8cb8-46acb35861b5:14'                                                                                                      |
+| binlog.000003 | 2284 | Query          |         1 |        2360 | BEGIN                                                                                                                                                                   |
+| binlog.000003 | 2360 | Table_map      |         1 |        2417 | table_id: 88 (caseb.t)                                                                                                                                                  |
+| binlog.000003 | 2417 | Delete_rows    |         1 |        2455 | table_id: 88 flags: STMT_END_F                                                                                                                                          |
+| binlog.000003 | 2455 | Xid            |         1 |        2486 | COMMIT /* xid=22 */                                                                                                                                                     |
++---------------+------+----------------+-----------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+26 rows in set (0.00 sec)
+
+mysql> 
+
+================ WINDOW B (reader) ================
+mysql: [Warning] Using a password on the command line interface can be insecure.
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 11
+Server version: 8.0.46 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2026, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> USE caseb;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> START TRANSACTION WITH CONSISTENT SNAPSHOT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM t WHERE v = 'A';
++----------+
+| COUNT(*) |
++----------+
+|        3 |
++----------+
+1 row in set (0.01 sec)
+
+mysql> SELECT trx_id, trx_started FROM information_schema.INNODB_TRX WHERE trx_mysql_thread_id = CONNECTION_ID();
++-----------------+---------------------+
+| trx_id          | trx_started         |
++-----------------+---------------------+
+| 562947968937984 | 2026-11-02 15:57:15 |
++-----------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> exit
+Bye
+

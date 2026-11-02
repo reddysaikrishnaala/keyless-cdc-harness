@@ -33,4 +33,4 @@ COMMIT;
 -- Conclusion for this step:
 --   Is A1 (InnoDB trx id, which read views use) equal to anything in the
 --   binlog for A (GTID A2, Xid A3, last_committed/sequence_number)?
---   Verified on 8.0.46: trx_id 240713 vs Xid 362412 - no match.
+--   Verified on 8.0.46: trx_id 1833 vs Xid 22 - no match (results/mysql/linkage.txt).
